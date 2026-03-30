@@ -3,674 +3,570 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPERAÇÃO 22/03</title>
+<title>CICLOS — PMGO</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --border: #1e1e1e;
-    --border-mid: #2a2a2a;
-    --text: #c8c8c8;
-    --text-dim: #555;
-    --text-faint: #333;
-    --accent: #e63946;
-    --accent-dim: rgba(230, 57, 70, 0.12);
-    --accent-glow: rgba(230, 57, 70, 0.06);
-    --green: #4ade80;
-    --green-dim: rgba(74, 222, 128, 0.1);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96, 165, 250, 0.08);
-    --today-bg: rgba(230, 57, 70, 0.07);
-    --today-border: rgba(230, 57, 70, 0.35);
-    --done-text: #3a3a3a;
-    --font: 'JetBrains Mono', monospace;
-  }
-
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 13px;
-    line-height: 1.5;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .container {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 16px 24px 24px;
-  }
-
-  /* ── HEADER ── */
-  .header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .header-left { display: flex; flex-direction: column; gap: 6px; }
-
-  .op-label {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-
-  .op-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.02em;
-  }
-
-  .op-dates {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  .header-right { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
-
-  .live-date {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  .live-date span {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  /* ── PROGRESS ── */
-  .progress-section {
-    margin-bottom: 24px;
-  }
-
-  .progress-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .progress-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .progress-count {
-    font-size: 12px;
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .progress-count .num {
-    color: var(--accent);
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  .progress-track {
-    height: 3px;
-    background: var(--border-mid);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-  }
-
-  .progress-fill::after {
-    content: '';
-    position: absolute;
-    right: 0; top: 0;
-    width: 20px; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(230,57,70,0.6));
-  }
-
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .tab {
-    padding: 8px 16px;
-    font-family: var(--font);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    transition: color 0.2s;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-  }
-
-  .tab:hover { color: var(--text); }
-
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-
-  /* ── SCHEDULE TABLE ── */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  .schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid var(--border);
-  }
-
-  .schedule-table thead tr {
-    background: #0e0e0e;
-    border-bottom: 1px solid var(--border-mid);
-  }
-
-  .schedule-table th {
-    padding: 9px 12px;
-    text-align: left;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    font-weight: 500;
-    border-right: 1px solid var(--border);
-  }
-
-  .schedule-table th:last-child { border-right: none; }
-
-  .schedule-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    vertical-align: middle;
-    transition: background 0.15s;
-  }
-
-  .schedule-table td:last-child { border-right: none; }
-  .schedule-table tr:last-child td { border-bottom: none; }
-
-  .schedule-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
-
-  /* row states */
-  .row-today td {
-    background: var(--today-bg) !important;
-  }
-  .row-today td:first-child {
-    border-left: 2px solid var(--accent);
-  }
-
-  .row-done td {
-    opacity: 0.4;
-  }
-
-  .row-done .cell-date,
-  .row-done .cell-disciplines {
-    text-decoration: line-through;
-    text-decoration-color: var(--text-faint);
-  }
-
-  .cell-date {
-    font-size: 12px;
-    font-weight: 500;
-    color: #fff;
-    white-space: nowrap;
-    width: 68px;
-  }
-
-  .row-today .cell-date { color: var(--accent); }
-
-  .cell-day {
-    font-size: 11px;
-    color: var(--text-dim);
-    width: 60px;
-    white-space: nowrap;
-  }
-
-  .cycle-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 2px;
-    white-space: nowrap;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-  }
-
-  .cycle-a { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96,165,250,0.15); }
-  .cycle-b { background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,0.15); }
-  .cycle-c { background: rgba(156,163,175,0.08); color: #9ca3af; border: 1px solid rgba(156,163,175,0.12); }
-  .cycle-rev { background: rgba(251,191,36,0.08); color: #fbbf24; border: 1px solid rgba(251,191,36,0.12); }
-  .cycle-q { background: rgba(251,146,60,0.08); color: #fb923c; border: 1px solid rgba(251,146,60,0.12); }
-  .cycle-sim { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(230,57,70,0.2); }
-
-  .cell-disciplines {
-    font-size: 12px;
-    color: var(--text);
-  }
-
-  .cell-disciplines .sep {
-    color: var(--text-faint);
-    margin: 0 4px;
-  }
-
-  .today-tag {
-    display: inline-block;
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-dim);
-    border: 1px solid rgba(230,57,70,0.2);
-    padding: 1px 6px;
-    border-radius: 2px;
-    margin-left: 6px;
-    vertical-align: middle;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  /* ── CHECKLIST VIEW ── */
-  .checklist {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .check-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 11px 14px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    user-select: none;
-    position: relative;
-  }
-
-  .check-item:hover { background: rgba(255,255,255,0.02); }
-
-  .check-item.is-today {
-    border-color: var(--today-border);
-    background: var(--today-bg);
-  }
-
-  .check-item.is-done {
-    background: transparent !important;
-    border-color: #161616 !important;
-  }
-
-  .check-item.is-done .check-label,
-  .check-item.is-done .check-disc,
-  .check-item.is-done .check-date { opacity: 0.3; }
-
-  .check-box {
-    width: 16px;
-    height: 16px;
-    border: 1px solid var(--border-mid);
-    border-radius: 2px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    background: transparent;
-  }
-
-  .check-item.is-today .check-box { border-color: var(--today-border); }
-
-  .check-item.is-done .check-box {
-    background: rgba(74,222,128,0.15);
-    border-color: rgba(74,222,128,0.3);
-  }
-
-  .check-mark {
-    width: 8px;
-    height: 8px;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .check-mark path { stroke: var(--green); stroke-width: 2; fill: none; }
-  .check-item.is-done .check-mark { opacity: 1; }
-
-  .check-date {
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
-    width: 42px;
-    flex-shrink: 0;
-  }
-
-  .check-item.is-today .check-date { color: var(--accent); }
-
-  .check-sep {
-    width: 1px;
-    height: 14px;
-    background: var(--border-mid);
-    flex-shrink: 0;
-  }
-
-  .check-cycle { flex-shrink: 0; }
-
-  .check-label {
-    font-size: 12px;
-    color: var(--text);
-    flex: 1;
-  }
-
-  .check-disc {
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  .check-item.is-done .check-label { text-decoration: line-through; text-decoration-color: #333; }
-
-  /* ── STATUS BAR ── */
-  .status-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .status-left { display: flex; gap: 20px; }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .stat-val {
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'Space Mono', monospace;
-    color: #fff;
-    line-height: 1;
-  }
-
-  .stat-val.accent { color: var(--accent); }
-  .stat-val.green { color: var(--green); }
-
-  .stat-label {
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
-
-  .next-mission {
-    font-size: 11px;
-    color: var(--text-dim);
-    text-align: right;
-    max-width: 280px;
-  }
-
-  .next-mission .nm-label {
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .next-mission .nm-text { color: var(--text); }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0a0a0a;
+  --surface:      #101010;
+  --surface2:     #141414;
+  --border:       #1c1c1c;
+  --border2:      #272727;
+  --text:         #b8b8b8;
+  --text-dim:     #4a4a4a;
+  --text-faint:   #282828;
+  --white:        #e8e8e8;
+  --red:          #e63946;
+  --red-dim:      rgba(230,57,70,.10);
+  --red-glow:     rgba(230,57,70,.04);
+  --green:        #4ade80;
+  --green-dim:    rgba(74,222,128,.08);
+  --blue:         #60a5fa;
+  --blue-dim:     rgba(96,165,250,.08);
+  --gray-dim:     rgba(156,163,175,.07);
+  --yellow:       #fbbf24;
+  --yellow-dim:   rgba(251,191,36,.08);
+  --orange:       #fb923c;
+  --orange-dim:   rgba(251,146,60,.08);
+  --font:         'JetBrains Mono', monospace;
+  --font2:        'Space Mono', monospace;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 18px 22px 22px; }
+
+/* ─── TOP BAR ─── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.topbar-left { display: flex; flex-direction: column; gap: 3px; }
+.sys-label {
+  font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--red); font-weight: 500;
+}
+.sys-title {
+  font-family: var(--font2); font-size: 17px; font-weight: 700;
+  color: var(--white); letter-spacing: -.02em;
+}
+.topbar-right {
+  display: flex; gap: 20px; align-items: flex-end;
+}
+.stat-mini { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.stat-mini-val {
+  font-family: var(--font2); font-size: 18px; font-weight: 700;
+  color: var(--white); line-height: 1;
+}
+.stat-mini-val.accent { color: var(--red); }
+.stat-mini-lbl {
+  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ─── BLOCK PROGRESS ─── */
+.block-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 18px;
+}
+.block-pip {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--border2);
+  transition: background .3s;
+}
+.block-pip.done    { background: var(--green); }
+.block-pip.current { background: var(--red); animation: pipPulse 1.6s infinite; }
+
+@keyframes pipPulse {
+  0%,100% { opacity: 1; } 50% { opacity: .4; }
+}
+
+.block-label {
+  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--text-dim); white-space: nowrap;
+}
+
+/* ─── CURRENT CYCLE CARD ─── */
+.cycle-card {
+  border: 1px solid var(--border2);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.cycle-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--cycle-color, var(--red));
+}
+.cycle-card-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 14px;
+}
+.cycle-badge-big {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px;
+  border-radius: 2px;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  background: var(--cycle-bg, var(--red-dim));
+  color: var(--cycle-color, var(--red));
+  border: 1px solid var(--cycle-border, rgba(230,57,70,.2));
+}
+.cycle-name-big {
+  font-family: var(--font2); font-size: 28px; font-weight: 700;
+  color: var(--white); line-height: 1; letter-spacing: -.02em;
+}
+.cycle-disciplines {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.disc-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text);
+}
+.disc-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--cycle-color, var(--red));
+  flex-shrink: 0; opacity: .6;
+}
+.cycle-desc {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ─── DONE BUTTON ─── */
+.btn-done {
+  width: 100%; padding: 13px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--font); font-size: 11px;
+  letter-spacing: .15em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-done:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-dim);
+}
+.btn-done:active { transform: scale(.995); }
+
+.btn-done .btn-inner {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+/* ─── NEXT PEEK ─── */
+.next-peek {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  margin-bottom: 18px;
+  background: var(--surface);
+}
+.next-peek-lbl {
+  font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.next-peek-val {
+  font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 8px;
+}
+
+/* ─── HISTORY ─── */
+.history-section { }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.btn-reset {
+  font-family: var(--font); font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-dim);
+  background: none; border: none; cursor: pointer; padding: 2px 6px;
+  transition: color .15s;
+}
+.btn-reset:hover { color: var(--red); }
+
+.history-list { display: flex; flex-direction: column; gap: 2px; }
+.history-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.history-num {
+  font-size: 10px; color: var(--text-dim); width: 22px; flex-shrink: 0;
+  font-family: var(--font2);
+}
+.history-badge { flex-shrink: 0; }
+.history-badge .cycle-badge {
+  font-size: 10px; padding: 2px 7px;
+}
+.history-disc { font-size: 11px; color: var(--text-dim); flex: 1; }
+.history-date { font-size: 10px; color: var(--text-faint); white-space: nowrap; }
+
+.history-empty {
+  padding: 16px; text-align: center;
+  font-size: 11px; color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+/* ─── SIMULADO ALERT ─── */
+.sim-alert {
+  display: none;
+  padding: 14px 16px;
+  border: 1px solid rgba(230,57,70,.3);
+  background: var(--red-dim);
+  margin-bottom: 14px;
+  animation: fadeIn .3s ease;
+}
+.sim-alert.show { display: block; }
+.sim-alert-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 4px;
+}
+.sim-alert-text { font-size: 12px; color: var(--text); }
+
+/* ─── CYCLE BADGE (reusable) ─── */
+.cycle-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; padding: 3px 8px; border-radius: 2px;
+  white-space: nowrap; font-weight: 500; letter-spacing: .04em;
+}
+.c-a   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(96,165,250,.15); }
+.c-b   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(74,222,128,.15); }
+.c-c   { background: var(--gray-dim);   color: #9ca3af;       border: 1px solid rgba(156,163,175,.12); }
+.c-rev { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,.15); }
+.c-q   { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251,146,60,.15); }
+.c-sim { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(230,57,70,.2); }
+
+@keyframes fadeIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: none; } }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <span class="op-label">▸ Operação Ativa</span>
-      <span class="op-title">SIMULADO PMGO</span>
-      <span class="op-dates">11 MAR → 22 MAR 2026</span>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="sys-label">▸ Sistema de Ciclos — PMGO</span>
+      <span class="sys-title">VIRTUS ET HONOR</span>
     </div>
-    <div class="header-right">
-      <span class="live-date">hoje · <span id="live-date">—</span></span>
-    </div>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-section">
-    <div class="progress-meta">
-      <span class="progress-label">Progresso da operação</span>
-      <span class="progress-count"><span class="num" id="done-count">0</span> / 12 dias</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-    </div>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('checklist', this)">Checklist</button>
-    <button class="tab" onclick="switchTab('table', this)">Cronograma</button>
-  </div>
-
-  <!-- CHECKLIST VIEW -->
-  <div class="view active" id="view-checklist">
-    <div class="checklist" id="checklist-items"></div>
-  </div>
-
-  <!-- TABLE VIEW -->
-  <div class="view" id="view-table">
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Dia</th>
-          <th>Ciclo</th>
-          <th>Disciplinas</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
-  </div>
-
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <div class="status-left">
-      <div class="stat">
-        <span class="stat-val accent" id="stat-remain">—</span>
-        <span class="stat-label">restantes</span>
+    <div class="topbar-right">
+      <div class="stat-mini">
+        <span class="stat-mini-val accent" id="stat-total">0</span>
+        <span class="stat-mini-lbl">dias estudados</span>
       </div>
-      <div class="stat">
-        <span class="stat-val green" id="stat-done">0</span>
-        <span class="stat-label">concluídos</span>
-      </div>
-      <div class="stat">
-        <span class="stat-val" id="stat-pct">0%</span>
-        <span class="stat-label">completo</span>
+      <div class="stat-mini">
+        <span class="stat-mini-val" id="stat-simulados">0</span>
+        <span class="stat-mini-lbl">simulados</span>
       </div>
     </div>
-    <div class="next-mission" id="next-mission-block">
-      <span class="nm-label">próxima missão</span>
-      <span class="nm-text" id="next-mission-text">—</span>
+  </div>
+
+  <!-- BLOCK PROGRESS (pips A B C D/E) -->
+  <div class="block-row">
+    <div class="block-pip" id="pip-0"></div>
+    <div class="block-pip" id="pip-1"></div>
+    <div class="block-pip" id="pip-2"></div>
+    <div class="block-pip" id="pip-3"></div>
+    <span class="block-label" id="block-label">bloco 1 · passo 1/4</span>
+  </div>
+
+  <!-- SIMULADO ALERT -->
+  <div class="sim-alert" id="sim-alert">
+    <div class="sim-alert-title">🎯 Missão Especial — Simulado</div>
+    <div class="sim-alert-text">Você completou 2 rotações completas. É hora do simulado. Execute a prova completa antes de avançar.</div>
+  </div>
+
+  <!-- CURRENT CYCLE CARD -->
+  <div class="cycle-card" id="cycle-card">
+    <div class="cycle-card-top">
+      <div>
+        <div style="margin-bottom:8px"><span class="cycle-badge-big" id="cycle-badge-big">🔵 CICLO A</span></div>
+        <div class="cycle-name-big" id="cycle-name-big">A</div>
+      </div>
+    </div>
+    <div class="cycle-disciplines" id="cycle-disciplines"></div>
+    <div class="cycle-desc" id="cycle-desc"></div>
+  </div>
+
+  <!-- DONE BUTTON -->
+  <button class="btn-done" id="btn-done" onclick="markDone()">
+    <span class="btn-inner">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      missão concluída — avançar ciclo
+    </span>
+  </button>
+
+  <!-- NEXT PEEK -->
+  <div class="next-peek">
+    <span class="next-peek-lbl">próximo ciclo</span>
+    <span class="next-peek-val" id="next-peek">—</span>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <div class="section-header">
+      <span class="section-title">histórico de missões</span>
+      <button class="btn-reset" onclick="confirmReset()">zerar sistema</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">Nenhum ciclo concluído ainda. Execute.</div>
     </div>
   </div>
 
 </div>
 
 <script>
-const DAYS = [
-  { date: '11/03', day: 'Qua', cycle: 'B', label: '🟢 B', disciplines: ['Proc. Penal', 'Administrativo', 'L. Extravagante'], iso: '2026-03-11' },
-  { date: '12/03', day: 'Qui', cycle: 'A', label: '🔵 A', disciplines: ['Português', 'Direito Penal', 'Constitucional'], iso: '2026-03-12' },
-  { date: '13/03', day: 'Sex', cycle: 'C', label: '⚫ C', disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade GO'], iso: '2026-03-13' },
-  { date: '14/03', day: 'Sáb', cycle: 'REV', label: '🔄 REVISÃO', disciplines: ['Revisão Geral — Ciclos A, B e C'], iso: '2026-03-14' },
-  { date: '15/03', day: 'Dom', cycle: 'Q', label: '🔥 QUESTÕES', disciplines: ['Bateria de Questões — Todas as Disciplinas'], iso: '2026-03-15' },
-  { date: '16/03', day: 'Seg', cycle: 'A', label: '🔵 A', disciplines: ['Português', 'Direito Penal', 'Constitucional'], iso: '2026-03-16' },
-  { date: '17/03', day: 'Ter', cycle: 'B', label: '🟢 B', disciplines: ['Proc. Penal', 'Administrativo', 'L. Extravagante'], iso: '2026-03-17' },
-  { date: '18/03', day: 'Qua', cycle: 'A', label: '🔵 A', disciplines: ['Português', 'Direito Penal', 'Constitucional'], iso: '2026-03-18' },
-  { date: '19/03', day: 'Qui', cycle: 'B', label: '🟢 B', disciplines: ['Proc. Penal', 'Administrativo', 'L. Extravagante'], iso: '2026-03-19' },
-  { date: '20/03', day: 'Sex', cycle: 'A', label: '🔵 A', disciplines: ['Português', 'Direito Penal', 'Constitucional'], iso: '2026-03-20' },
-  { date: '21/03', day: 'Sáb', cycle: 'C', label: '⚫ C', disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade GO'], iso: '2026-03-21' },
-  { date: '22/03', day: 'Dom', cycle: 'SIM', label: '🎯 SIMULADO', disciplines: ['Simulado PMGO 2022 (AOCP) — Prova Completa'], iso: '2026-03-22' },
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const CYCLES = [
+  {
+    id: 'A', label: '🔵 CICLO A', name: 'A',
+    cls: 'c-a',
+    color: '#60a5fa', bg: 'rgba(96,165,250,.10)', border: 'rgba(96,165,250,.2)',
+    disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
+    desc: 'Dia de carga estrutural. Foco em teoria + questões. Mínimo 2h30.'
+  },
+  {
+    id: 'B', label: '🟢 CICLO B', name: 'B',
+    cls: 'c-b',
+    color: '#4ade80', bg: 'rgba(74,222,128,.08)', border: 'rgba(74,222,128,.15)',
+    disciplines: ['Direito Proc. Penal', 'Direito Administrativo', 'Legislação Extravagante'],
+    desc: 'Dia técnico. Lei seca direcionada + questões por tema. Mínimo 2h.'
+  },
+  {
+    id: 'C', label: '⚫ CICLO C', name: 'C',
+    cls: 'c-c',
+    color: '#9ca3af', bg: 'rgba(156,163,175,.07)', border: 'rgba(156,163,175,.12)',
+    disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade de Goiás'],
+    desc: 'Legislação específica. Leitura ativa + questões de lei seca. Mínimo 1h30.'
+  },
+  {
+    id: 'REV', label: '🔄 REVISÃO', name: 'Revisão',
+    cls: 'c-rev',
+    color: '#fbbf24', bg: 'rgba(251,191,36,.08)', border: 'rgba(251,191,36,.15)',
+    disciplines: ['Revisão Geral — Ciclos A, B e C'],
+    desc: 'Revisar ≠ reler. Para cada tópico: tente explicar antes de abrir o material. Mapeie os furos.'
+  },
+  {
+    id: 'A', label: '🔵 CICLO A', name: 'A',
+    cls: 'c-a',
+    color: '#60a5fa', bg: 'rgba(96,165,250,.10)', border: 'rgba(96,165,250,.2)',
+    disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
+    desc: 'Dia de carga estrutural. Foco em teoria + questões. Mínimo 2h30.'
+  },
+  {
+    id: 'B', label: '🟢 CICLO B', name: 'B',
+    cls: 'c-b',
+    color: '#4ade80', bg: 'rgba(74,222,128,.08)', border: 'rgba(74,222,128,.15)',
+    disciplines: ['Direito Proc. Penal', 'Direito Administrativo', 'Legislação Extravagante'],
+    desc: 'Dia técnico. Lei seca direcionada + questões por tema. Mínimo 2h.'
+  },
+  {
+    id: 'C', label: '⚫ CICLO C', name: 'C',
+    cls: 'c-c',
+    color: '#9ca3af', bg: 'rgba(156,163,175,.07)', border: 'rgba(156,163,175,.12)',
+    disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade de Goiás'],
+    desc: 'Legislação específica. Leitura ativa + questões de lei seca. Mínimo 1h30.'
+  },
+  {
+    id: 'Q', label: '🔥 QUESTÕES', name: 'Questões',
+    cls: 'c-q',
+    color: '#fb923c', bg: 'rgba(251,146,60,.08)', border: 'rgba(251,146,60,.15)',
+    disciplines: ['Bateria de Questões — Todas as Disciplinas'],
+    desc: 'Simular caos de prova. Blocos mistos sem separação por matéria. Registre % de acerto por disciplina.'
+  },
+  {
+    id: 'SIM', label: '🎯 SIMULADO', name: 'Simulado',
+    cls: 'c-sim',
+    color: '#e63946', bg: 'rgba(230,57,70,.10)', border: 'rgba(230,57,70,.2)',
+    disciplines: ['Simulado PMGO — Prova Completa (AOCP)'],
+    desc: 'Trate o dia como dia de prova. Marcar somente após concluir a prova completa. Registre erros por disciplina.'
+  },
 ];
 
-const CYCLE_CLASS = { A: 'cycle-a', B: 'cycle-b', C: 'cycle-c', REV: 'cycle-rev', Q: 'cycle-q', SIM: 'cycle-sim' };
-const STORAGE_KEY = 'pmgo_op2203_v1';
+// Sequence: A B C REV  A B C Q  SIM  → repeat (indices 0–8)
+const SEQ_LEN = CYCLES.length; // 9
 
-function getTodayISO() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
+const KEY = 'pmgo_ciclos_v2';
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || defaultState(); }
+  catch { return defaultState(); }
 }
 
-function loadDone() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+function defaultState() {
+  return { pos: 0, total: 0, simulados: 0, history: [] };
 }
 
-function saveDone(done) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
+function save(s) {
+  localStorage.setItem(KEY, JSON.stringify(s));
 }
 
-function updateProgress(done) {
-  const count = Object.values(done).filter(Boolean).length;
-  const pct = Math.round((count / DAYS.length) * 100);
-  document.getElementById('done-count').textContent = count;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('stat-done').textContent = count;
-  document.getElementById('stat-remain').textContent = DAYS.length - count;
-  document.getElementById('stat-pct').textContent = pct + '%';
+// ─── RENDER ─────────────────────────────────────────────────────────────────
 
-  const nextDay = DAYS.find(d => !done[d.iso]);
-  const nextEl = document.getElementById('next-mission-text');
-  const nextBlock = document.getElementById('next-mission-block');
-  if (nextDay) {
-    nextEl.textContent = nextDay.date + ' · ' + nextDay.disciplines.join(' · ');
-    nextBlock.style.display = 'flex';
-    nextBlock.style.flexDirection = 'column';
+function render() {
+  const s = load();
+  const cur = CYCLES[s.pos % SEQ_LEN];
+  const next = CYCLES[(s.pos + 1) % SEQ_LEN];
+
+  // top stats
+  document.getElementById('stat-total').textContent = s.total;
+  document.getElementById('stat-simulados').textContent = s.simulados;
+
+  // block pips  (position within group of 4: 0 1 2 3 then simulado = alone)
+  const posInSeq = s.pos % SEQ_LEN;
+  // groups: 0-3 = block1, 4-7 = block2, 8 = sim
+  let blockPos, blockSize, blockNum;
+  if (posInSeq <= 3) { blockPos = posInSeq; blockSize = 4; blockNum = 1; }
+  else if (posInSeq <= 7) { blockPos = posInSeq - 4; blockSize = 4; blockNum = 2; }
+  else { blockPos = 0; blockSize = 1; blockNum = 'SIM'; }
+
+  for (let i = 0; i < 4; i++) {
+    const pip = document.getElementById('pip-' + i);
+    pip.className = 'block-pip';
+    if (blockSize === 1) {
+      pip.classList.add(i === 0 ? 'current' : '');
+    } else {
+      if (i < blockPos) pip.classList.add('done');
+      else if (i === blockPos) pip.classList.add('current');
+    }
+  }
+  document.getElementById('block-label').textContent =
+    blockNum === 'SIM'
+      ? 'simulado · rotação completa'
+      : `bloco ${blockNum} · passo ${blockPos + 1}/4`;
+
+  // simulado alert
+  document.getElementById('sim-alert').classList.toggle('show', cur.id === 'SIM');
+
+  // cycle card
+  const card = document.getElementById('cycle-card');
+  card.style.setProperty('--cycle-color', cur.color);
+  card.style.setProperty('--cycle-bg', cur.bg);
+  card.style.setProperty('--cycle-border', cur.border);
+
+  document.getElementById('cycle-badge-big').className = 'cycle-badge-big';
+  document.getElementById('cycle-badge-big').textContent = cur.label;
+  document.getElementById('cycle-name-big').textContent = cur.name;
+
+  const discEl = document.getElementById('cycle-disciplines');
+  discEl.innerHTML = cur.disciplines.map(d =>
+    `<div class="disc-item"><div class="disc-dot"></div><span>${d}</span></div>`
+  ).join('');
+
+  document.getElementById('cycle-desc').textContent = cur.desc;
+
+  // next peek
+  const nextEl = document.getElementById('next-peek');
+  nextEl.innerHTML = `<span class="cycle-badge ${next.cls}">${next.label}</span>
+    <span style="font-size:11px;color:var(--text-dim);margin-left:8px">${next.disciplines[0]}</span>`;
+
+  // history
+  const histEl = document.getElementById('history-list');
+  if (!s.history.length) {
+    histEl.innerHTML = '<div class="history-empty">Nenhum ciclo concluído ainda. Execute.</div>';
   } else {
-    nextEl.textContent = '— operação concluída ✓';
+    histEl.innerHTML = [...s.history].reverse().slice(0, 8).map((h, i) => {
+      const cyc = CYCLES.find(c => c.id === h.id && c.label === h.label) ||
+                  CYCLES.find(c => c.id === h.id) || CYCLES[0];
+      return `<div class="history-item">
+        <span class="history-num">${s.history.length - i}</span>
+        <span class="history-badge"><span class="cycle-badge ${cyc.cls}">${h.label}</span></span>
+        <span class="history-disc">${h.disc}</span>
+        <span class="history-date">${h.date}</span>
+      </div>`;
+    }).join('');
   }
 }
 
-function buildChecklist(done, today) {
-  const container = document.getElementById('checklist-items');
-  container.innerHTML = '';
-  DAYS.forEach((d, i) => {
-    const isDone = !!done[d.iso];
-    const isToday = d.iso === today;
-    const item = document.createElement('div');
-    item.className = 'check-item' + (isToday ? ' is-today' : '') + (isDone ? ' is-done' : '');
-    item.dataset.iso = d.iso;
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
 
-    item.innerHTML = `
-      <div class="check-box">
-        <svg class="check-mark" viewBox="0 0 10 10">
-          <path d="M1.5 5L4 7.5L8.5 2.5"/>
-        </svg>
-      </div>
-      <span class="check-date">${d.date}</span>
-      <div class="check-sep"></div>
-      <span class="check-cycle"><span class="cycle-badge ${CYCLE_CLASS[d.cycle]}">${d.label}</span></span>
-      <div class="check-sep"></div>
-      <span class="check-label">${d.disciplines.join('<span class="sep"> · </span>')}</span>
-      ${isToday ? '<span class="today-tag">hoje</span>' : ''}
-    `;
+function markDone() {
+  const s = load();
+  const cur = CYCLES[s.pos % SEQ_LEN];
 
-    item.addEventListener('click', () => {
-      const newDone = loadDone();
-      newDone[d.iso] = !newDone[d.iso];
-      saveDone(newDone);
-      buildChecklist(newDone, today);
-      buildTable(newDone, today);
-      updateProgress(newDone);
-    });
-
-    container.appendChild(item);
-  });
-}
-
-function buildTable(done, today) {
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = '';
-  DAYS.forEach(d => {
-    const isDone = !!done[d.iso];
-    const isToday = d.iso === today;
-    const tr = document.createElement('tr');
-    tr.className = (isToday ? 'row-today ' : '') + (isDone ? 'row-done' : '');
-
-    const discs = d.disciplines.map((disc, i) =>
-      i === 0 ? disc : `<span class="sep">·</span>${disc}`
-    ).join(' ');
-
-    tr.innerHTML = `
-      <td class="cell-date">${d.date}${isToday ? '<span class="today-tag">hoje</span>' : ''}</td>
-      <td class="cell-day">${d.day}</td>
-      <td><span class="cycle-badge ${CYCLE_CLASS[d.cycle]}">${d.label}</span></td>
-      <td class="cell-disciplines">${discs}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function switchTab(id, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('view-' + id).classList.add('active');
-  btn.classList.add('active');
-}
-
-function updateLiveDate() {
+  // add to history
   const now = new Date();
-  const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  document.getElementById('live-date').textContent =
-    days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+  const dateStr = now.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+  s.history.push({
+    id: cur.id,
+    label: cur.label,
+    disc: cur.disciplines.join(' · ').substring(0, 52) + (cur.disciplines.join(' · ').length > 52 ? '…' : ''),
+    date: dateStr
+  });
+
+  s.total++;
+  if (cur.id === 'SIM') s.simulados++;
+  s.pos++;
+
+  save(s);
+
+  // button flash
+  const btn = document.getElementById('btn-done');
+  btn.style.borderColor = 'var(--green)';
+  btn.style.color = 'var(--green)';
+  btn.style.background = 'var(--green-dim)';
+  btn.querySelector('.btn-inner').innerHTML = `
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    ✓ ciclo registrado`;
+
+  setTimeout(() => {
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    btn.style.background = '';
+    btn.querySelector('.btn-inner').innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      missão concluída — avançar ciclo`;
+    render();
+  }, 600);
 }
 
-// init
-const today = getTodayISO();
-const done = loadDone();
-updateLiveDate();
-buildChecklist(done, today);
-buildTable(done, today);
-updateProgress(done);
+function confirmReset() {
+  if (confirm('Zerar todo o histórico e reiniciar o sistema de ciclos?')) {
+    localStorage.removeItem(KEY);
+    render();
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
 </script>
 </body>
 </html>
