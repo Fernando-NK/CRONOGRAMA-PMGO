@@ -1,572 +1,885 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CICLOS — PMGO</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PMGO — Sistema de Ciclos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
 
-:root {
-  --bg:           #0a0a0a;
-  --surface:      #101010;
-  --surface2:     #141414;
-  --border:       #1c1c1c;
-  --border2:      #272727;
-  --text:         #b8b8b8;
-  --text-dim:     #4a4a4a;
-  --text-faint:   #282828;
-  --white:        #e8e8e8;
-  --red:          #e63946;
-  --red-dim:      rgba(230,57,70,.10);
-  --red-glow:     rgba(230,57,70,.04);
-  --green:        #4ade80;
-  --green-dim:    rgba(74,222,128,.08);
-  --blue:         #60a5fa;
-  --blue-dim:     rgba(96,165,250,.08);
-  --gray-dim:     rgba(156,163,175,.07);
-  --yellow:       #fbbf24;
-  --yellow-dim:   rgba(251,191,36,.08);
-  --orange:       #fb923c;
-  --orange-dim:   rgba(251,146,60,.08);
-  --font:         'JetBrains Mono', monospace;
-  --font2:        'Space Mono', monospace;
-}
+    :root {
+      --bg: #06070a;
+      --panel: rgba(12, 15, 20, 0.88);
+      --panel-2: rgba(18, 22, 28, 0.92);
+      --panel-3: rgba(11, 14, 19, 0.96);
+      --line: rgba(255,255,255,.08);
+      --line-2: rgba(255,255,255,.13);
+      --text: #d8dee9;
+      --muted: #8b95a7;
+      --soft: #5a6472;
+      --danger: #ef4444;
+      --danger-bg: rgba(239,68,68,.14);
+      --blue: #60a5fa;
+      --blue-bg: rgba(96,165,250,.14);
+      --green: #4ade80;
+      --green-bg: rgba(74,222,128,.14);
+      --yellow: #fbbf24;
+      --yellow-bg: rgba(251,191,36,.14);
+      --orange: #fb923c;
+      --orange-bg: rgba(251,146,60,.14);
+      --gray: #9ca3af;
+      --gray-bg: rgba(156,163,175,.14);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --font-ui: Inter, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 13px;
-  line-height: 1.5;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(239,68,68,.10), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(96,165,250,.08), transparent 22%),
+        linear-gradient(180deg, #050608 0%, #080b10 100%);
+      color: var(--text);
+      font-family: var(--font-ui);
+      padding: 22px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-.wrap { max-width: 780px; margin: 0 auto; padding: 18px 22px 22px; }
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
 
-/* ─── TOP BAR ─── */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-}
-.topbar-left { display: flex; flex-direction: column; gap: 3px; }
-.sys-label {
-  font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--red); font-weight: 500;
-}
-.sys-title {
-  font-family: var(--font2); font-size: 17px; font-weight: 700;
-  color: var(--white); letter-spacing: -.02em;
-}
-.topbar-right {
-  display: flex; gap: 20px; align-items: flex-end;
-}
-.stat-mini { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.stat-mini-val {
-  font-family: var(--font2); font-size: 18px; font-weight: 700;
-  color: var(--white); line-height: 1;
-}
-.stat-mini-val.accent { color: var(--red); }
-.stat-mini-lbl {
-  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--text-dim);
-}
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
 
-/* ─── BLOCK PROGRESS ─── */
-.block-row {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 18px;
-}
-.block-pip {
-  flex: 1; height: 3px; border-radius: 2px;
-  background: var(--border2);
-  transition: background .3s;
-}
-.block-pip.done    { background: var(--green); }
-.block-pip.current { background: var(--red); animation: pipPulse 1.6s infinite; }
+    .header {
+      padding: 22px 22px 18px;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 18px;
+    }
 
-@keyframes pipPulse {
-  0%,100% { opacity: 1; } 50% { opacity: .4; }
-}
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #f87171;
+      font: 700 11px var(--font-mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
 
-.block-label {
-  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--text-dim); white-space: nowrap;
-}
+    .title {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.04em;
+      margin: 0 0 8px;
+    }
 
-/* ─── CURRENT CYCLE CARD ─── */
-.cycle-card {
-  border: 1px solid var(--border2);
-  padding: 20px 22px;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-.cycle-card::before {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--cycle-color, var(--red));
-}
-.cycle-card-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  margin-bottom: 14px;
-}
-.cycle-badge-big {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 5px 12px;
-  border-radius: 2px;
-  font-size: 12px; font-weight: 700; letter-spacing: .06em;
-  background: var(--cycle-bg, var(--red-dim));
-  color: var(--cycle-color, var(--red));
-  border: 1px solid var(--cycle-border, rgba(230,57,70,.2));
-}
-.cycle-name-big {
-  font-family: var(--font2); font-size: 28px; font-weight: 700;
-  color: var(--white); line-height: 1; letter-spacing: -.02em;
-}
-.cycle-disciplines {
-  display: flex; flex-direction: column; gap: 6px;
-}
-.disc-item {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 13px; color: var(--text);
-}
-.disc-dot {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--cycle-color, var(--red));
-  flex-shrink: 0; opacity: .6;
-}
-.cycle-desc {
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-size: 11px; color: var(--text-dim);
-  line-height: 1.6;
-}
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 58ch;
+    }
 
-/* ─── DONE BUTTON ─── */
-.btn-done {
-  width: 100%; padding: 13px;
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--text);
-  font-family: var(--font); font-size: 11px;
-  letter-spacing: .15em; text-transform: uppercase;
-  cursor: pointer;
-  transition: all .15s;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
-}
-.btn-done:hover {
-  border-color: var(--green);
-  color: var(--green);
-  background: var(--green-dim);
-}
-.btn-done:active { transform: scale(.995); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      align-self: stretch;
+    }
 
-.btn-done .btn-inner {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 112px;
+    }
 
-/* ─── NEXT PEEK ─── */
-.next-peek {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  margin-bottom: 18px;
-  background: var(--surface);
-}
-.next-peek-lbl {
-  font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--text-dim);
-}
-.next-peek-val {
-  font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 8px;
-}
+    .stat-label {
+      color: var(--muted);
+      font: 600 11px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
 
-/* ─── HISTORY ─── */
-.history-section { }
-.section-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
-}
-.section-title {
-  font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--text-dim);
-}
-.btn-reset {
-  font-family: var(--font); font-size: 9px; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--text-dim);
-  background: none; border: none; cursor: pointer; padding: 2px 6px;
-  transition: color .15s;
-}
-.btn-reset:hover { color: var(--red); }
+    .stat-value {
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-top: 14px;
+    }
 
-.history-list { display: flex; flex-direction: column; gap: 2px; }
-.history-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-}
-.history-num {
-  font-size: 10px; color: var(--text-dim); width: 22px; flex-shrink: 0;
-  font-family: var(--font2);
-}
-.history-badge { flex-shrink: 0; }
-.history-badge .cycle-badge {
-  font-size: 10px; padding: 2px 7px;
-}
-.history-disc { font-size: 11px; color: var(--text-dim); flex: 1; }
-.history-date { font-size: 10px; color: var(--text-faint); white-space: nowrap; }
+    .stat-hint {
+      color: var(--soft);
+      font-size: 12px;
+      margin-top: 6px;
+    }
 
-.history-empty {
-  padding: 16px; text-align: center;
-  font-size: 11px; color: var(--text-dim);
-  border: 1px solid var(--border);
-}
+    .accent-danger { color: #f87171; }
+    .accent-blue { color: #93c5fd; }
 
-/* ─── SIMULADO ALERT ─── */
-.sim-alert {
-  display: none;
-  padding: 14px 16px;
-  border: 1px solid rgba(230,57,70,.3);
-  background: var(--red-dim);
-  margin-bottom: 14px;
-  animation: fadeIn .3s ease;
-}
-.sim-alert.show { display: block; }
-.sim-alert-title {
-  font-size: 11px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--red); margin-bottom: 4px;
-}
-.sim-alert-text { font-size: 12px; color: var(--text); }
+    .main {
+      display: grid;
+      grid-template-columns: 1.45fr .95fr;
+      gap: 16px;
+    }
 
-/* ─── CYCLE BADGE (reusable) ─── */
-.cycle-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; padding: 3px 8px; border-radius: 2px;
-  white-space: nowrap; font-weight: 500; letter-spacing: .04em;
-}
-.c-a   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(96,165,250,.15); }
-.c-b   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(74,222,128,.15); }
-.c-c   { background: var(--gray-dim);   color: #9ca3af;       border: 1px solid rgba(156,163,175,.12); }
-.c-rev { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,.15); }
-.c-q   { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251,146,60,.15); }
-.c-sim { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(230,57,70,.2); }
+    .focus-card {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)),
+        var(--panel);
+    }
 
-@keyframes fadeIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: none; } }
+    .focus-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -30% auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: var(--cycle-glow, rgba(239,68,68,.12));
+      filter: blur(40px);
+      pointer-events: none;
+    }
 
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-</style>
+    .focus-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 8px 12px;
+      font: 700 12px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    .cycle-name {
+      margin: 12px 0 0;
+      font-size: clamp(32px, 7vw, 52px);
+      line-height: .95;
+      letter-spacing: -.06em;
+      font-weight: 800;
+    }
+
+    .meta {
+      text-align: right;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font: 600 11px var(--font-mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .progress-title,
+    .progress-phase {
+      color: var(--muted);
+      font: 600 11px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cycle-color), rgba(255,255,255,.95));
+      border-radius: inherit;
+      transition: width .35s ease;
+    }
+
+    .disciplines {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .discipline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      min-height: 48px;
+    }
+
+    .discipline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cycle-color);
+      box-shadow: 0 0 0 6px var(--cycle-soft);
+      flex-shrink: 0;
+    }
+
+    .discipline span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .desc-box {
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .desc-label {
+      color: var(--muted);
+      font: 600 11px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+
+    .desc-text {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .side {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      color: var(--muted);
+      font: 700 11px var(--font-mono);
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .panel-note {
+      color: var(--soft);
+      font-size: 12px;
+    }
+
+    .next-box {
+      display: grid;
+      gap: 10px;
+    }
+
+    .next-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+    }
+
+    .next-disc {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .alert {
+      display: none;
+      border: 1px solid rgba(239,68,68,.25);
+      background: var(--danger-bg);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      gap: 8px;
+    }
+
+    .alert.show { display: grid; }
+
+    .alert-title {
+      color: #f87171;
+      font: 700 12px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .alert p {
+      margin: 0;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font: 700 13px var(--font-mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: .2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)), var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--line-2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      border-color: rgba(74,222,128,.35);
+      color: #bbf7d0;
+      box-shadow: 0 10px 30px rgba(74,222,128,.08);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px dashed var(--line-2);
+    }
+
+    .btn-secondary:hover {
+      color: #fecaca;
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.05);
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+      max-height: 400px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .history-empty {
+      border: 1px dashed var(--line-2);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: var(--panel-2);
+    }
+
+    .history-index {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font: 700 12px var(--font-mono);
+    }
+
+    .history-main {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .history-disc {
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-date {
+      color: var(--soft);
+      font: 600 11px var(--font-mono);
+      white-space: nowrap;
+    }
+
+    .footer-note {
+      padding: 0 4px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .c-a   { color: var(--blue);   background: var(--blue-bg);   border-color: rgba(96,165,250,.18); }
+    .c-b   { color: var(--green);  background: var(--green-bg);  border-color: rgba(74,222,128,.18); }
+    .c-c   { color: var(--gray);   background: var(--gray-bg);   border-color: rgba(156,163,175,.18); }
+    .c-rev { color: var(--yellow); background: var(--yellow-bg); border-color: rgba(251,191,36,.18); }
+    .c-q   { color: var(--orange); background: var(--orange-bg); border-color: rgba(251,146,60,.18); }
+    .c-sim { color: var(--danger); background: var(--danger-bg); border-color: rgba(239,68,68,.2); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    @media (max-width: 860px) {
+      .header, .main { grid-template-columns: 1fr; }
+      .meta { text-align: left; }
+      .focus-top { flex-direction: column; }
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 12px; }
+      .header, .focus-card, .panel { padding: 16px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .history-item { grid-template-columns: auto 1fr; }
+      .history-date { grid-column: 2; }
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="sys-label">▸ Sistema de Ciclos — PMGO</span>
-      <span class="sys-title">VIRTUS ET HONOR</span>
-    </div>
-    <div class="topbar-right">
-      <div class="stat-mini">
-        <span class="stat-mini-val accent" id="stat-total">0</span>
-        <span class="stat-mini-lbl">dias estudados</span>
-      </div>
-      <div class="stat-mini">
-        <span class="stat-mini-val" id="stat-simulados">0</span>
-        <span class="stat-mini-lbl">simulados</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- BLOCK PROGRESS (pips A B C D/E) -->
-  <div class="block-row">
-    <div class="block-pip" id="pip-0"></div>
-    <div class="block-pip" id="pip-1"></div>
-    <div class="block-pip" id="pip-2"></div>
-    <div class="block-pip" id="pip-3"></div>
-    <span class="block-label" id="block-label">bloco 1 · passo 1/4</span>
-  </div>
-
-  <!-- SIMULADO ALERT -->
-  <div class="sim-alert" id="sim-alert">
-    <div class="sim-alert-title">🎯 Missão Especial — Simulado</div>
-    <div class="sim-alert-text">Você completou 2 rotações completas. É hora do simulado. Execute a prova completa antes de avançar.</div>
-  </div>
-
-  <!-- CURRENT CYCLE CARD -->
-  <div class="cycle-card" id="cycle-card">
-    <div class="cycle-card-top">
+  <div class="app">
+    <section class="card header">
       <div>
-        <div style="margin-bottom:8px"><span class="cycle-badge-big" id="cycle-badge-big">🔵 CICLO A</span></div>
-        <div class="cycle-name-big" id="cycle-name-big">A</div>
+        <div class="eyebrow">▸ Sistema de Ciclos — PMGO</div>
+        <h1 class="title">Virtus et Honor</h1>
+        <p class="subtitle">Widget de estudo com rotação contínua, histórico local, aviso de simulado e progresso visual limpo para uso no Notion via embed.</p>
       </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Dias registrados</span>
+          <div>
+            <div class="stat-value accent-danger" id="stat-total">0</div>
+            <div class="stat-hint">Cada avanço registra 1 execução</div>
+          </div>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Simulados</span>
+          <div>
+            <div class="stat-value accent-blue" id="stat-simulados">0</div>
+            <div class="stat-hint">Controle separado da prova completa</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="main">
+      <article class="card focus-card" id="focus-card">
+        <div class="focus-top">
+          <div>
+            <span class="badge c-sim" id="cycle-badge">🎯 SIMULADO</span>
+            <h2 class="cycle-name" id="cycle-name">SIM</h2>
+          </div>
+          <div class="meta">
+            <div class="meta-label">Próxima execução</div>
+            <div class="meta-value" id="cycle-phase">Bloco 1 · Passo 1/4</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label-row">
+            <span class="progress-title">Progresso da rotação</span>
+            <span class="progress-phase" id="rotation-text">1 / 9</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="disciplines" id="disciplines"></div>
+
+        <div class="desc-box">
+          <div class="desc-label">Diretriz do dia</div>
+          <p class="desc-text" id="cycle-desc"></p>
+        </div>
+      </article>
+
+      <aside class="side">
+        <section class="card panel">
+          <div class="panel-head">
+            <span class="panel-title">Próximo alvo</span>
+            <span class="panel-note">continuidade automática</span>
+          </div>
+          <div class="next-box">
+            <div class="next-chip" id="next-badge"></div>
+            <div class="next-disc" id="next-disc"></div>
+          </div>
+        </section>
+
+        <section class="alert" id="sim-alert">
+          <span class="alert-title">Missão especial — simulado</span>
+          <p>Você chegou ao ponto de prova completa. O ideal aqui é não marcar por impulso: execute o simulado AOCP e só depois avance.</p>
+        </section>
+
+        <section class="card panel">
+          <div class="panel-head">
+            <span class="panel-title">Ações</span>
+            <span class="panel-note">salvo no navegador</span>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" id="btn-done" type="button">
+              <span>✓ missão concluída — avançar</span>
+            </button>
+            <button class="btn-secondary" id="btn-reset" type="button">
+              <span>zerar sistema</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="card panel">
+          <div class="panel-head">
+            <span class="panel-title">Histórico recente</span>
+            <span class="panel-note">últimos 12 registros</span>
+          </div>
+          <div class="history-list" id="history-list"></div>
+        </section>
+      </aside>
+    </section>
+
+    <div class="footer-note">
+      Observação: este widget usa <strong>localStorage</strong>. Se o navegador limpar os dados do site, o histórico local pode ser perdido. Para segurança real, o ideal é exportar os registros para Notion/Sheets ou usar banco externo depois.
     </div>
-    <div class="cycle-disciplines" id="cycle-disciplines"></div>
-    <div class="cycle-desc" id="cycle-desc"></div>
   </div>
 
-  <!-- DONE BUTTON -->
-  <button class="btn-done" id="btn-done" onclick="markDone()">
-    <span class="btn-inner">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      missão concluída — avançar ciclo
-    </span>
-  </button>
+  <script>
+    const STORAGE_KEY = 'pmgo_widget_vh_v3';
 
-  <!-- NEXT PEEK -->
-  <div class="next-peek">
-    <span class="next-peek-lbl">próximo ciclo</span>
-    <span class="next-peek-val" id="next-peek">—</span>
-  </div>
+    const CYCLES = [
+      {
+        id: 'A',
+        short: 'A',
+        label: '🔵 CICLO A',
+        cls: 'c-a',
+        color: '#60a5fa',
+        soft: 'rgba(96,165,250,.20)',
+        glow: 'rgba(96,165,250,.12)',
+        disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
+        desc: 'Carga estrutural. Prioridade em teoria nuclear + questões. Se Constitucional estiver em déficit, é válido abrir por ele sem quebrar o sistema.'
+      },
+      {
+        id: 'B',
+        short: 'B',
+        label: '🟢 CICLO B',
+        cls: 'c-b',
+        color: '#4ade80',
+        soft: 'rgba(74,222,128,.20)',
+        glow: 'rgba(74,222,128,.12)',
+        disciplines: ['Direito Processual Penal', 'Direito Administrativo', 'Legislação Extravagante'],
+        desc: 'Dia técnico. Lei seca, esquemas curtos e bateria de questões por tópico quente de prova.'
+      },
+      {
+        id: 'C',
+        short: 'C',
+        label: '⚫ CICLO C',
+        cls: 'c-c',
+        color: '#9ca3af',
+        soft: 'rgba(156,163,175,.20)',
+        glow: 'rgba(156,163,175,.10)',
+        disciplines: ['Direito Penal Militar', 'Processo Penal Militar', 'Realidade de Goiás'],
+        desc: 'Leitura precisa de legislação específica. Aqui o erro costuma vir de detalhe literal e confusão com o CP/CPP comum.'
+      },
+      {
+        id: 'REV',
+        short: 'REV',
+        label: '🔄 REVISÃO',
+        cls: 'c-rev',
+        color: '#fbbf24',
+        soft: 'rgba(251,191,36,.20)',
+        glow: 'rgba(251,191,36,.12)',
+        disciplines: ['Revisão geral dos ciclos A, B e C'],
+        desc: 'Revisão ativa. Não releia tudo. Tente lembrar, teste, marque falhas e só então consulte o material.'
+      },
+      {
+        id: 'A',
+        short: 'A',
+        label: '🔵 CICLO A',
+        cls: 'c-a',
+        color: '#60a5fa',
+        soft: 'rgba(96,165,250,.20)',
+        glow: 'rgba(96,165,250,.12)',
+        disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
+        desc: 'Segunda passagem do bloco base. Aqui vale apertar mais questões e correção de erro.'
+      },
+      {
+        id: 'B',
+        short: 'B',
+        label: '🟢 CICLO B',
+        cls: 'c-b',
+        color: '#4ade80',
+        soft: 'rgba(74,222,128,.20)',
+        glow: 'rgba(74,222,128,.12)',
+        disciplines: ['Direito Processual Penal', 'Direito Administrativo', 'Legislação Extravagante'],
+        desc: 'Rodada de consolidação. Priorize pontos em que a banca cobra literalidade, prazo e competência.'
+      },
+      {
+        id: 'C',
+        short: 'C',
+        label: '⚫ CICLO C',
+        cls: 'c-c',
+        color: '#9ca3af',
+        soft: 'rgba(156,163,175,.20)',
+        glow: 'rgba(156,163,175,.10)',
+        disciplines: ['Direito Penal Militar', 'Processo Penal Militar', 'Realidade de Goiás'],
+        desc: 'Fechamento do segundo bloco específico. Leitura curta, revisão e questão seca.'
+      },
+      {
+        id: 'Q',
+        short: 'Q',
+        label: '🔥 QUESTÕES',
+        cls: 'c-q',
+        color: '#fb923c',
+        soft: 'rgba(251,146,60,.20)',
+        glow: 'rgba(251,146,60,.12)',
+        disciplines: ['Bloco misto de questões', 'Correção de erros', 'Mapeamento por disciplina'],
+        desc: 'Caos controlado. Questões misturadas, sem separação por matéria, para forçar recuperação rápida de conteúdo.'
+      },
+      {
+        id: 'SIM',
+        short: 'SIM',
+        label: '🎯 SIMULADO',
+        cls: 'c-sim',
+        color: '#ef4444',
+        soft: 'rgba(239,68,68,.20)',
+        glow: 'rgba(239,68,68,.12)',
+        disciplines: ['Simulado completo PMGO/AOCP', 'Correção detalhada', 'Registro de falhas'],
+        desc: 'Dia de prova. Controle de tempo, marcação limpa, correção dura e leitura do padrão de erro depois.'
+      }
+    ];
 
-  <!-- HISTORY -->
-  <div class="history-section">
-    <div class="section-header">
-      <span class="section-title">histórico de missões</span>
-      <button class="btn-reset" onclick="confirmReset()">zerar sistema</button>
-    </div>
-    <div class="history-list" id="history-list">
-      <div class="history-empty">Nenhum ciclo concluído ainda. Execute.</div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-
-const CYCLES = [
-  {
-    id: 'A', label: '🔵 CICLO A', name: 'A',
-    cls: 'c-a',
-    color: '#60a5fa', bg: 'rgba(96,165,250,.10)', border: 'rgba(96,165,250,.2)',
-    disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
-    desc: 'Dia de carga estrutural. Foco em teoria + questões. Mínimo 2h30.'
-  },
-  {
-    id: 'B', label: '🟢 CICLO B', name: 'B',
-    cls: 'c-b',
-    color: '#4ade80', bg: 'rgba(74,222,128,.08)', border: 'rgba(74,222,128,.15)',
-    disciplines: ['Direito Proc. Penal', 'Direito Administrativo', 'Legislação Extravagante'],
-    desc: 'Dia técnico. Lei seca direcionada + questões por tema. Mínimo 2h.'
-  },
-  {
-    id: 'C', label: '⚫ CICLO C', name: 'C',
-    cls: 'c-c',
-    color: '#9ca3af', bg: 'rgba(156,163,175,.07)', border: 'rgba(156,163,175,.12)',
-    disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade de Goiás'],
-    desc: 'Legislação específica. Leitura ativa + questões de lei seca. Mínimo 1h30.'
-  },
-  {
-    id: 'REV', label: '🔄 REVISÃO', name: 'Revisão',
-    cls: 'c-rev',
-    color: '#fbbf24', bg: 'rgba(251,191,36,.08)', border: 'rgba(251,191,36,.15)',
-    disciplines: ['Revisão Geral — Ciclos A, B e C'],
-    desc: 'Revisar ≠ reler. Para cada tópico: tente explicar antes de abrir o material. Mapeie os furos.'
-  },
-  {
-    id: 'A', label: '🔵 CICLO A', name: 'A',
-    cls: 'c-a',
-    color: '#60a5fa', bg: 'rgba(96,165,250,.10)', border: 'rgba(96,165,250,.2)',
-    disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
-    desc: 'Dia de carga estrutural. Foco em teoria + questões. Mínimo 2h30.'
-  },
-  {
-    id: 'B', label: '🟢 CICLO B', name: 'B',
-    cls: 'c-b',
-    color: '#4ade80', bg: 'rgba(74,222,128,.08)', border: 'rgba(74,222,128,.15)',
-    disciplines: ['Direito Proc. Penal', 'Direito Administrativo', 'Legislação Extravagante'],
-    desc: 'Dia técnico. Lei seca direcionada + questões por tema. Mínimo 2h.'
-  },
-  {
-    id: 'C', label: '⚫ CICLO C', name: 'C',
-    cls: 'c-c',
-    color: '#9ca3af', bg: 'rgba(156,163,175,.07)', border: 'rgba(156,163,175,.12)',
-    disciplines: ['Penal Militar', 'Proc. Penal Militar', 'Realidade de Goiás'],
-    desc: 'Legislação específica. Leitura ativa + questões de lei seca. Mínimo 1h30.'
-  },
-  {
-    id: 'Q', label: '🔥 QUESTÕES', name: 'Questões',
-    cls: 'c-q',
-    color: '#fb923c', bg: 'rgba(251,146,60,.08)', border: 'rgba(251,146,60,.15)',
-    disciplines: ['Bateria de Questões — Todas as Disciplinas'],
-    desc: 'Simular caos de prova. Blocos mistos sem separação por matéria. Registre % de acerto por disciplina.'
-  },
-  {
-    id: 'SIM', label: '🎯 SIMULADO', name: 'Simulado',
-    cls: 'c-sim',
-    color: '#e63946', bg: 'rgba(230,57,70,.10)', border: 'rgba(230,57,70,.2)',
-    disciplines: ['Simulado PMGO — Prova Completa (AOCP)'],
-    desc: 'Trate o dia como dia de prova. Marcar somente após concluir a prova completa. Registre erros por disciplina.'
-  },
-];
-
-// Sequence: A B C REV  A B C Q  SIM  → repeat (indices 0–8)
-const SEQ_LEN = CYCLES.length; // 9
-
-const KEY = 'pmgo_ciclos_v2';
-
-// ─── STATE ──────────────────────────────────────────────────────────────────
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || defaultState(); }
-  catch { return defaultState(); }
-}
-
-function defaultState() {
-  return { pos: 0, total: 0, simulados: 0, history: [] };
-}
-
-function save(s) {
-  localStorage.setItem(KEY, JSON.stringify(s));
-}
-
-// ─── RENDER ─────────────────────────────────────────────────────────────────
-
-function render() {
-  const s = load();
-  const cur = CYCLES[s.pos % SEQ_LEN];
-  const next = CYCLES[(s.pos + 1) % SEQ_LEN];
-
-  // top stats
-  document.getElementById('stat-total').textContent = s.total;
-  document.getElementById('stat-simulados').textContent = s.simulados;
-
-  // block pips  (position within group of 4: 0 1 2 3 then simulado = alone)
-  const posInSeq = s.pos % SEQ_LEN;
-  // groups: 0-3 = block1, 4-7 = block2, 8 = sim
-  let blockPos, blockSize, blockNum;
-  if (posInSeq <= 3) { blockPos = posInSeq; blockSize = 4; blockNum = 1; }
-  else if (posInSeq <= 7) { blockPos = posInSeq - 4; blockSize = 4; blockNum = 2; }
-  else { blockPos = 0; blockSize = 1; blockNum = 'SIM'; }
-
-  for (let i = 0; i < 4; i++) {
-    const pip = document.getElementById('pip-' + i);
-    pip.className = 'block-pip';
-    if (blockSize === 1) {
-      pip.classList.add(i === 0 ? 'current' : '');
-    } else {
-      if (i < blockPos) pip.classList.add('done');
-      else if (i === blockPos) pip.classList.add('current');
+    function defaultState() {
+      return {
+        pos: 0,
+        total: 0,
+        simulados: 0,
+        history: []
+      };
     }
-  }
-  document.getElementById('block-label').textContent =
-    blockNum === 'SIM'
-      ? 'simulado · rotação completa'
-      : `bloco ${blockNum} · passo ${blockPos + 1}/4`;
 
-  // simulado alert
-  document.getElementById('sim-alert').classList.toggle('show', cur.id === 'SIM');
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : defaultState();
+      } catch {
+        return defaultState();
+      }
+    }
 
-  // cycle card
-  const card = document.getElementById('cycle-card');
-  card.style.setProperty('--cycle-color', cur.color);
-  card.style.setProperty('--cycle-bg', cur.bg);
-  card.style.setProperty('--cycle-border', cur.border);
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-  document.getElementById('cycle-badge-big').className = 'cycle-badge-big';
-  document.getElementById('cycle-badge-big').textContent = cur.label;
-  document.getElementById('cycle-name-big').textContent = cur.name;
+    function getBlockLabel(pos) {
+      const p = pos % CYCLES.length;
+      if (p <= 3) return `Bloco 1 · Passo ${p + 1}/4`;
+      if (p <= 7) return `Bloco 2 · Passo ${p - 3}/4`;
+      return 'Rotação completa · Simulado';
+    }
 
-  const discEl = document.getElementById('cycle-disciplines');
-  discEl.innerHTML = cur.disciplines.map(d =>
-    `<div class="disc-item"><div class="disc-dot"></div><span>${d}</span></div>`
-  ).join('');
+    function getShortDate() {
+      const now = new Date();
+      return now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
 
-  document.getElementById('cycle-desc').textContent = cur.desc;
+    function truncate(text, max = 68) {
+      return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+    }
 
-  // next peek
-  const nextEl = document.getElementById('next-peek');
-  nextEl.innerHTML = `<span class="cycle-badge ${next.cls}">${next.label}</span>
-    <span style="font-size:11px;color:var(--text-dim);margin-left:8px">${next.disciplines[0]}</span>`;
+    function render() {
+      const state = loadState();
+      const current = CYCLES[state.pos % CYCLES.length];
+      const next = CYCLES[(state.pos + 1) % CYCLES.length];
+      const rotationIndex = (state.pos % CYCLES.length) + 1;
+      const progress = (rotationIndex / CYCLES.length) * 100;
 
-  // history
-  const histEl = document.getElementById('history-list');
-  if (!s.history.length) {
-    histEl.innerHTML = '<div class="history-empty">Nenhum ciclo concluído ainda. Execute.</div>';
-  } else {
-    histEl.innerHTML = [...s.history].reverse().slice(0, 8).map((h, i) => {
-      const cyc = CYCLES.find(c => c.id === h.id && c.label === h.label) ||
-                  CYCLES.find(c => c.id === h.id) || CYCLES[0];
-      return `<div class="history-item">
-        <span class="history-num">${s.history.length - i}</span>
-        <span class="history-badge"><span class="cycle-badge ${cyc.cls}">${h.label}</span></span>
-        <span class="history-disc">${h.disc}</span>
-        <span class="history-date">${h.date}</span>
-      </div>`;
-    }).join('');
-  }
-}
+      document.getElementById('stat-total').textContent = state.total;
+      document.getElementById('stat-simulados').textContent = state.simulados;
 
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+      const card = document.getElementById('focus-card');
+      card.style.setProperty('--cycle-color', current.color);
+      card.style.setProperty('--cycle-soft', current.soft);
+      card.style.setProperty('--cycle-glow', current.glow);
 
-function markDone() {
-  const s = load();
-  const cur = CYCLES[s.pos % SEQ_LEN];
+      const badge = document.getElementById('cycle-badge');
+      badge.className = `badge ${current.cls}`;
+      badge.textContent = current.label;
 
-  // add to history
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-  s.history.push({
-    id: cur.id,
-    label: cur.label,
-    disc: cur.disciplines.join(' · ').substring(0, 52) + (cur.disciplines.join(' · ').length > 52 ? '…' : ''),
-    date: dateStr
-  });
+      document.getElementById('cycle-name').textContent = current.short;
+      document.getElementById('cycle-phase').textContent = getBlockLabel(state.pos);
+      document.getElementById('rotation-text').textContent = `${rotationIndex} / ${CYCLES.length}`;
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      document.getElementById('cycle-desc').textContent = current.desc;
 
-  s.total++;
-  if (cur.id === 'SIM') s.simulados++;
-  s.pos++;
+      const disciplinesEl = document.getElementById('disciplines');
+      disciplinesEl.innerHTML = current.disciplines.map(item => `
+        <div class="discipline">
+          <span class="discipline-dot"></span>
+          <span>${item}</span>
+        </div>
+      `).join('');
 
-  save(s);
+      const nextBadge = document.getElementById('next-badge');
+      nextBadge.innerHTML = `<span class="badge ${next.cls}">${next.label}</span>`;
+      document.getElementById('next-disc').textContent = next.disciplines.join(' · ');
 
-  // button flash
-  const btn = document.getElementById('btn-done');
-  btn.style.borderColor = 'var(--green)';
-  btn.style.color = 'var(--green)';
-  btn.style.background = 'var(--green-dim)';
-  btn.querySelector('.btn-inner').innerHTML = `
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-      <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    ✓ ciclo registrado`;
+      document.getElementById('sim-alert').classList.toggle('show', current.id === 'SIM');
 
-  setTimeout(() => {
-    btn.style.borderColor = '';
-    btn.style.color = '';
-    btn.style.background = '';
-    btn.querySelector('.btn-inner').innerHTML = `
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      missão concluída — avançar ciclo`;
+      const historyEl = document.getElementById('history-list');
+      if (!state.history.length) {
+        historyEl.innerHTML = `<div class="history-empty">Nenhum registro ainda. O sistema começa a construir histórico quando você concluir o primeiro ciclo.</div>`;
+      } else {
+        historyEl.innerHTML = [...state.history].reverse().slice(0, 12).map((item, index) => `
+          <div class="history-item">
+            <div class="history-index">${state.history.length - index}</div>
+            <div class="history-main">
+              <div><span class="badge ${item.cls}">${item.label}</span></div>
+              <div class="history-disc">${truncate(item.disc)}</div>
+            </div>
+            <div class="history-date">${item.date}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function markDone() {
+      const state = loadState();
+      const current = CYCLES[state.pos % CYCLES.length];
+
+      state.history.push({
+        id: current.id,
+        label: current.label,
+        cls: current.cls,
+        disc: current.disciplines.join(' · '),
+        date: getShortDate()
+      });
+
+      state.total += 1;
+      if (current.id === 'SIM') state.simulados += 1;
+      state.pos += 1;
+      saveState(state);
+
+      const btn = document.getElementById('btn-done');
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span>✓ ciclo registrado</span>';
+      btn.style.borderColor = 'rgba(74,222,128,.35)';
+      btn.style.color = '#bbf7d0';
+
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        render();
+      }, 550);
+    }
+
+    function resetSystem() {
+      const confirmReset = window.confirm('Zerar todo o histórico e reiniciar a rotação?');
+      if (!confirmReset) return;
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    document.getElementById('btn-done').addEventListener('click', markDone);
+    document.getElementById('btn-reset').addEventListener('click', resetSystem);
+
     render();
-  }, 600);
-}
-
-function confirmReset() {
-  if (confirm('Zerar todo o histórico e reiniciar o sistema de ciclos?')) {
-    localStorage.removeItem(KEY);
-    render();
-  }
-}
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-render();
-</script>
+  </script>
 </body>
 </html>
