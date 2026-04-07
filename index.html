@@ -33,6 +33,8 @@
       --orange-bg: rgba(251,146,60,.14);
       --gray: #9ca3af;
       --gray-bg: rgba(156,163,175,.14);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,.14);
       --radius-xl: 24px;
       --radius-lg: 18px;
       --radius-md: 14px;
@@ -55,7 +57,7 @@
     }
 
     .app {
-      max-width: 980px;
+      max-width: 1080px;
       margin: 0 auto;
       display: grid;
       gap: 16px;
@@ -72,7 +74,7 @@
     .header {
       padding: 22px 22px 18px;
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
+      grid-template-columns: 1.4fr 1fr;
       gap: 18px;
     }
 
@@ -100,12 +102,12 @@
       color: var(--muted);
       font-size: 14px;
       line-height: 1.55;
-      max-width: 58ch;
+      max-width: 60ch;
     }
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       align-self: stretch;
     }
@@ -129,7 +131,7 @@
     }
 
     .stat-value {
-      font-size: clamp(28px, 5vw, 40px);
+      font-size: clamp(24px, 4.4vw, 38px);
       font-weight: 800;
       line-height: 1;
       letter-spacing: -.05em;
@@ -144,10 +146,11 @@
 
     .accent-danger { color: #f87171; }
     .accent-blue { color: #93c5fd; }
+    .accent-purple { color: #c4b5fd; }
 
     .main {
       display: grid;
-      grid-template-columns: 1.45fr .95fr;
+      grid-template-columns: 1.4fr .92fr;
       gap: 16px;
     }
 
@@ -197,7 +200,7 @@
 
     .cycle-name {
       margin: 12px 0 0;
-      font-size: clamp(32px, 7vw, 52px);
+      font-size: clamp(28px, 6vw, 44px);
       line-height: .95;
       letter-spacing: -.06em;
       font-weight: 800;
@@ -261,26 +264,79 @@
       transition: width .35s ease;
     }
 
-    .disciplines {
+    .discipline-main {
       display: grid;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 18px;
       position: relative;
       z-index: 1;
     }
 
-    .discipline {
+    .discipline-card-main {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .discipline-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .discipline-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .discipline-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-chip {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 700 11px var(--font-mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+
+    .discipline-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--panel-2);
+      background: rgba(255,255,255,.02);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 12px 13px;
       min-height: 48px;
     }
 
-    .discipline-dot {
+    .mini-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
@@ -289,7 +345,7 @@
       flex-shrink: 0;
     }
 
-    .discipline span {
+    .mini-item span {
       font-size: 14px;
       font-weight: 600;
       color: var(--text);
@@ -352,13 +408,6 @@
       gap: 10px;
     }
 
-    .next-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      width: fit-content;
-    }
-
     .next-disc {
       color: var(--text);
       font-size: 14px;
@@ -366,33 +415,50 @@
       line-height: 1.45;
     }
 
-    .alert {
-      display: none;
-      border: 1px solid rgba(239,68,68,.25);
-      background: var(--danger-bg);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      gap: 8px;
+    .weight-list {
+      display: grid;
+      gap: 10px;
     }
 
-    .alert.show { display: grid; }
-
-    .alert-title {
-      color: #f87171;
-      font: 700 12px var(--font-mono);
-      text-transform: uppercase;
-      letter-spacing: .08em;
+    .weight-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: var(--panel-2);
     }
 
-    .alert p {
-      margin: 0;
+    .weight-name {
+      font-size: 13px;
+      font-weight: 700;
       color: var(--text);
-      font-size: 14px;
-      line-height: 1.55;
+    }
+
+    .weight-info {
+      font: 700 11px var(--font-mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.12);
     }
 
     .actions {
       display: grid;
+      gap: 10px;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
@@ -404,7 +470,9 @@
     }
 
     .btn-primary,
-    .btn-secondary {
+    .btn-secondary,
+    .btn-ghost,
+    .btn-danger {
       width: 100%;
       border-radius: 16px;
       padding: 14px 16px;
@@ -443,15 +511,121 @@
       background: rgba(239,68,68,.05);
     }
 
-    .history-list {
-      display: grid;
-      gap: 10px;
-      max-height: 400px;
-      overflow: auto;
-      padding-right: 4px;
+    .btn-danger {
+      background: rgba(239,68,68,.08);
+      color: #fecaca;
+      border: 1px solid rgba(239,68,68,.25);
     }
 
-    .history-empty {
+    .btn-danger:hover {
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.4);
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.05);
+    }
+
+    .footer-note {
+      padding: 0 4px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .c-blue   { color: var(--blue);   background: var(--blue-bg);   border-color: rgba(96,165,250,.18); }
+    .c-green  { color: var(--green);  background: var(--green-bg);  border-color: rgba(74,222,128,.18); }
+    .c-gray   { color: var(--gray);   background: var(--gray-bg);   border-color: rgba(156,163,175,.18); }
+    .c-yellow { color: var(--yellow); background: var(--yellow-bg); border-color: rgba(251,191,36,.18); }
+    .c-orange { color: var(--orange); background: var(--orange-bg); border-color: rgba(251,146,60,.18); }
+    .c-purple { color: var(--purple); background: var(--purple-bg); border-color: rgba(167,139,250,.18); }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(2, 4, 8, .72);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-card {
+      width: min(900px, 100%);
+      max-height: min(86vh, 920px);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: var(--panel-3);
+      border: 1px solid var(--line-2);
+      border-radius: 24px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .modal-sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .modal-close:hover {
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .modal-body {
+      overflow: auto;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .history-list,
+    .settings-grid,
+    .discipline-editor-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-empty,
+    .empty-box {
       border: 1px dashed var(--line-2);
       border-radius: 16px;
       padding: 18px;
@@ -502,36 +676,175 @@
       white-space: nowrap;
     }
 
-    .footer-note {
-      padding: 0 4px;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.5;
+    .setting-card,
+    .discipline-editor-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: var(--panel-2);
+      display: grid;
+      gap: 12px;
     }
 
-    .c-a   { color: var(--blue);   background: var(--blue-bg);   border-color: rgba(96,165,250,.18); }
-    .c-b   { color: var(--green);  background: var(--green-bg);  border-color: rgba(74,222,128,.18); }
-    .c-c   { color: var(--gray);   background: var(--gray-bg);   border-color: rgba(156,163,175,.18); }
-    .c-rev { color: var(--yellow); background: var(--yellow-bg); border-color: rgba(251,191,36,.18); }
-    .c-q   { color: var(--orange); background: var(--orange-bg); border-color: rgba(251,146,60,.18); }
-    .c-sim { color: var(--danger); background: var(--danger-bg); border-color: rgba(239,68,68,.2); }
+    .setting-head,
+    .editor-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .setting-title,
+    .editor-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .setting-note,
+    .editor-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .field,
+    .select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line-2);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding: 12px 13px;
+      font: 600 13px var(--font-ui);
+      outline: none;
+    }
+
+    .field:focus,
+    .select:focus {
+      border-color: rgba(96,165,250,.35);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.12);
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .7fr .8fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .form-col {
+      display: grid;
+      gap: 6px;
+    }
+
+    .form-col label {
+      color: var(--muted);
+      font: 600 11px var(--font-mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .toggle-label {
+      display: grid;
+      gap: 3px;
+    }
+
+    .toggle-label strong {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .toggle-label span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .switch {
+      position: relative;
+      width: 50px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid var(--line-2);
+      transition: .2s ease;
+      cursor: pointer;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      transition: .2s ease;
+    }
+
+    .switch input:checked + .slider {
+      background: rgba(74,222,128,.22);
+      border-color: rgba(74,222,128,.35);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+
+    .modal-footer {
+      padding: 14px 18px 18px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
 
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
     ::-webkit-scrollbar-track { background: transparent; }
 
-    @media (max-width: 860px) {
+    @media (max-width: 900px) {
       .header, .main { grid-template-columns: 1fr; }
       .meta { text-align: left; }
       .focus-top { flex-direction: column; }
     }
 
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: 1fr; }
+      .action-grid, .inline-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 560px) {
       body { padding: 12px; }
       .header, .focus-card, .panel { padding: 16px; }
-      .stats { grid-template-columns: 1fr 1fr; }
       .history-item { grid-template-columns: auto 1fr; }
       .history-date { grid-column: 2; }
+      .modal { padding: 10px; }
     }
   </style>
 </head>
@@ -541,21 +854,28 @@
       <div>
         <div class="eyebrow">▸ Sistema de Ciclos — PMGO</div>
         <h1 class="title">Virtus et Honor</h1>
-        <p class="subtitle">Widget de estudo com rotação contínua, histórico local, aviso de simulado e progresso visual limpo para uso no Notion via embed.</p>
+        <p class="subtitle">Base seca e sólida: rotação por disciplinas, com peso configurável e estrutura preparada para crescer depois.</p>
       </div>
       <div class="stats">
         <div class="stat">
           <span class="stat-label">Dias registrados</span>
           <div>
             <div class="stat-value accent-danger" id="stat-total">0</div>
-            <div class="stat-hint">Cada avanço registra 1 execução</div>
+            <div class="stat-hint">Cada avanço registra 1 estudo concluído</div>
           </div>
         </div>
         <div class="stat">
-          <span class="stat-label">Simulados</span>
+          <span class="stat-label">Rotações completas</span>
           <div>
-            <div class="stat-value accent-blue" id="stat-simulados">0</div>
-            <div class="stat-hint">Controle separado da prova completa</div>
+            <div class="stat-value accent-blue" id="stat-rotations">0</div>
+            <div class="stat-hint">Cada ciclo completo da sequência</div>
+          </div>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Disciplinas ativas</span>
+          <div>
+            <div class="stat-value accent-purple" id="stat-disciplines">0</div>
+            <div class="stat-hint">Base atual da rotação</div>
           </div>
         </div>
       </div>
@@ -565,30 +885,52 @@
       <article class="card focus-card" id="focus-card">
         <div class="focus-top">
           <div>
-            <span class="badge c-sim" id="cycle-badge">🎯 SIMULADO</span>
-            <h2 class="cycle-name" id="cycle-name">SIM</h2>
+            <span class="badge c-blue" id="cycle-badge">DISCIPLINA</span>
+            <h2 class="cycle-name" id="cycle-name">Direito Penal</h2>
           </div>
           <div class="meta">
-            <div class="meta-label">Próxima execução</div>
-            <div class="meta-value" id="cycle-phase">Bloco 1 · Passo 1/4</div>
+            <div class="meta-label">Fase atual</div>
+            <div class="meta-value" id="cycle-phase">Posição 1 da rotação</div>
           </div>
         </div>
 
         <div class="progress-wrap">
           <div class="progress-label-row">
             <span class="progress-title">Progresso da rotação</span>
-            <span class="progress-phase" id="rotation-text">1 / 9</span>
+            <span class="progress-phase" id="rotation-text">1 / 6</span>
           </div>
           <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
           </div>
         </div>
 
-        <div class="disciplines" id="disciplines"></div>
+        <div class="discipline-main">
+          <div class="discipline-card-main">
+            <div class="discipline-head">
+              <h3 class="discipline-title" id="discipline-title">Direito Penal</h3>
+              <div class="discipline-meta">
+                <span class="mini-chip" id="discipline-weight-chip">Peso 3</span>
+                <span class="mini-chip" id="discipline-pass-chip">Ocorrência 1</span>
+              </div>
+            </div>
+            <p class="discipline-desc" id="discipline-desc">Disciplina ativa da vez. Use este card como alvo operacional principal do estudo do dia.</p>
+          </div>
+
+          <div class="mini-list">
+            <div class="mini-item">
+              <span class="mini-dot"></span>
+              <span id="discipline-note-1">Peso maior = aparece mais vezes na rotação</span>
+            </div>
+            <div class="mini-item">
+              <span class="mini-dot"></span>
+              <span id="discipline-note-2">A base está limpa: só disciplinas, sem simulados nem revisões</span>
+            </div>
+          </div>
+        </div>
 
         <div class="desc-box">
           <div class="desc-label">Diretriz do dia</div>
-          <p class="desc-text" id="cycle-desc"></p>
+          <p class="desc-text" id="cycle-desc">Execute a disciplina atual. Quando concluir, avance manualmente para a próxima posição da rotação.</p>
         </div>
       </article>
 
@@ -599,14 +941,17 @@
             <span class="panel-note">continuidade automática</span>
           </div>
           <div class="next-box">
-            <div class="next-chip" id="next-badge"></div>
+            <div id="next-badge"></div>
             <div class="next-disc" id="next-disc"></div>
           </div>
         </section>
 
-        <section class="alert" id="sim-alert">
-          <span class="alert-title">Missão especial — simulado</span>
-          <p>Você chegou ao ponto de prova completa. O ideal aqui é não marcar por impulso: execute o simulado AOCP e só depois avance.</p>
+        <section class="card panel">
+          <div class="panel-head">
+            <span class="panel-title">Pesos ativos</span>
+            <span class="panel-note">prioridade da base</span>
+          </div>
+          <div class="weight-list" id="weight-list"></div>
         </section>
 
         <section class="card panel">
@@ -616,270 +961,733 @@
           </div>
           <div class="actions">
             <button class="btn-primary" id="btn-done" type="button">
-              <span>✓ missão concluída — avançar</span>
+              <span>✓ disciplina concluída — avançar</span>
             </button>
-            <button class="btn-secondary" id="btn-reset" type="button">
+            <div class="action-grid">
+              <button class="btn-ghost" id="btn-history" type="button">
+                <span>histórico</span>
+              </button>
+              <button class="btn-ghost" id="btn-settings" type="button">
+                <span>configurações</span>
+              </button>
+            </div>
+            <button class="btn-danger" id="btn-reset" type="button">
               <span>zerar sistema</span>
             </button>
           </div>
-        </section>
-
-        <section class="card panel">
-          <div class="panel-head">
-            <span class="panel-title">Histórico recente</span>
-            <span class="panel-note">últimos 12 registros</span>
-          </div>
-          <div class="history-list" id="history-list"></div>
         </section>
       </aside>
     </section>
 
     <div class="footer-note">
-      Observação: este widget usa <strong>localStorage</strong>. Se o navegador limpar os dados do site, o histórico local pode ser perdido. Para segurança real, o ideal é exportar os registros para Notion/Sheets ou usar banco externo depois.
+      Observação: o reset agora usa modal próprio, sem depender de <strong>window.confirm</strong>. Isso evita falha comum em ambiente embedado no Notion/iframe.
+    </div>
+  </div>
+
+  <div class="modal" id="history-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="history-title">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="history-title">Histórico recente</h3>
+          <p class="modal-sub">Registros locais das disciplinas concluídas.</p>
+        </div>
+        <button class="modal-close" type="button" data-close="history-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="history-list" id="history-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="history-modal">fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settings-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="settings-title">Configurações do sistema</h3>
+          <p class="modal-sub">Aqui você monta a base seca da rotação por disciplinas.</p>
+        </div>
+        <button class="modal-close" type="button" data-close="settings-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-grid">
+          <div class="setting-card">
+            <div class="setting-head">
+              <div class="setting-title">Identidade do sistema</div>
+            </div>
+            <div class="setting-note">Ajustes visuais básicos do widget.</div>
+            <div class="form-col">
+              <label for="cfg-system-name">Nome do sistema</label>
+              <input class="field" id="cfg-system-name" type="text" maxlength="40" placeholder="Virtus et Honor" />
+            </div>
+            <div class="form-col">
+              <label for="cfg-subtitle">Subtítulo</label>
+              <input class="field" id="cfg-subtitle" type="text" maxlength="140" placeholder="Base seca e sólida..." />
+            </div>
+          </div>
+
+          <div class="setting-card">
+            <div class="setting-head">
+              <div class="setting-title">Lógica da rotação</div>
+            </div>
+            <div class="setting-note">Por enquanto, só disciplinas. Nada de revisão, questões, prova ou simulado automático.</div>
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <strong>Exigir confirmação no reset</strong>
+                <span>Evita apagar tudo por clique acidental.</span>
+              </div>
+              <label class="switch">
+                <input id="cfg-confirm-reset" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-card">
+            <div class="setting-head">
+              <div class="setting-title">Adicionar disciplina</div>
+            </div>
+            <div class="setting-note">Peso maior = mais aparições na rotação. Esta é a base inteligente do sistema.</div>
+            <div class="inline-grid">
+              <div class="form-col">
+                <label for="new-discipline-name">Nome</label>
+                <input class="field" id="new-discipline-name" type="text" maxlength="60" placeholder="Ex.: Direito Penal" />
+              </div>
+              <div class="form-col">
+                <label for="new-discipline-weight">Peso</label>
+                <input class="field" id="new-discipline-weight" type="number" min="1" max="10" step="1" value="1" />
+              </div>
+              <div class="form-col">
+                <label for="new-discipline-color">Cor</label>
+                <select class="select" id="new-discipline-color">
+                  <option value="blue">Azul</option>
+                  <option value="green">Verde</option>
+                  <option value="gray">Cinza</option>
+                  <option value="yellow">Amarelo</option>
+                  <option value="orange">Laranja</option>
+                  <option value="purple">Roxo</option>
+                </select>
+              </div>
+              <button class="btn-primary" id="btn-add-discipline" type="button">adicionar</button>
+            </div>
+          </div>
+
+          <div class="setting-card">
+            <div class="setting-head">
+              <div class="setting-title">Disciplinas da base</div>
+            </div>
+            <div class="setting-note">Edite nome, peso e cor sem tocar no HTML. Você pode remover o que não quiser agora.</div>
+            <div class="discipline-editor-list" id="discipline-editor-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="settings-modal">fechar</button>
+        <button class="btn-primary" type="button" id="btn-settings-save">salvar configurações</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="reset-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="reset-title" style="width:min(520px,100%);">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="reset-title">Zerar sistema</h3>
+          <p class="modal-sub">Isso apaga histórico, posição da rotação e configurações locais.</p>
+        </div>
+        <button class="modal-close" type="button" data-close="reset-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="empty-box">Confirme apenas se quiser reiniciar do zero. O reset agora não depende do confirm nativo do navegador.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="reset-modal">cancelar</button>
+        <button class="btn-danger" type="button" id="btn-reset-confirm">zerar agora</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'pmgo_widget_vh_v3';
+    const STORAGE_KEY = 'pmgo_widget_vh_v6';
+    const LEGACY_KEYS = ['pmgo_widget_vh_v5', 'pmgo_widget_vh_v4', 'pmgo_widget_vh_v3', 'pmgo_ciclos_v2'];
 
-    const CYCLES = [
-      {
-        id: 'A',
-        short: 'A',
-        label: '🔵 CICLO A',
-        cls: 'c-a',
-        color: '#60a5fa',
-        soft: 'rgba(96,165,250,.20)',
-        glow: 'rgba(96,165,250,.12)',
-        disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
-        desc: 'Carga estrutural. Prioridade em teoria nuclear + questões. Se Constitucional estiver em déficit, é válido abrir por ele sem quebrar o sistema.'
-      },
-      {
-        id: 'B',
-        short: 'B',
-        label: '🟢 CICLO B',
-        cls: 'c-b',
-        color: '#4ade80',
-        soft: 'rgba(74,222,128,.20)',
-        glow: 'rgba(74,222,128,.12)',
-        disciplines: ['Direito Processual Penal', 'Direito Administrativo', 'Legislação Extravagante'],
-        desc: 'Dia técnico. Lei seca, esquemas curtos e bateria de questões por tópico quente de prova.'
-      },
-      {
-        id: 'C',
-        short: 'C',
-        label: '⚫ CICLO C',
-        cls: 'c-c',
-        color: '#9ca3af',
-        soft: 'rgba(156,163,175,.20)',
-        glow: 'rgba(156,163,175,.10)',
-        disciplines: ['Direito Penal Militar', 'Processo Penal Militar', 'Realidade de Goiás'],
-        desc: 'Leitura precisa de legislação específica. Aqui o erro costuma vir de detalhe literal e confusão com o CP/CPP comum.'
-      },
-      {
-        id: 'REV',
-        short: 'REV',
-        label: '🔄 REVISÃO',
-        cls: 'c-rev',
-        color: '#fbbf24',
-        soft: 'rgba(251,191,36,.20)',
-        glow: 'rgba(251,191,36,.12)',
-        disciplines: ['Revisão geral dos ciclos A, B e C'],
-        desc: 'Revisão ativa. Não releia tudo. Tente lembrar, teste, marque falhas e só então consulte o material.'
-      },
-      {
-        id: 'A',
-        short: 'A',
-        label: '🔵 CICLO A',
-        cls: 'c-a',
-        color: '#60a5fa',
-        soft: 'rgba(96,165,250,.20)',
-        glow: 'rgba(96,165,250,.12)',
-        disciplines: ['Língua Portuguesa', 'Direito Penal', 'Direito Constitucional'],
-        desc: 'Segunda passagem do bloco base. Aqui vale apertar mais questões e correção de erro.'
-      },
-      {
-        id: 'B',
-        short: 'B',
-        label: '🟢 CICLO B',
-        cls: 'c-b',
-        color: '#4ade80',
-        soft: 'rgba(74,222,128,.20)',
-        glow: 'rgba(74,222,128,.12)',
-        disciplines: ['Direito Processual Penal', 'Direito Administrativo', 'Legislação Extravagante'],
-        desc: 'Rodada de consolidação. Priorize pontos em que a banca cobra literalidade, prazo e competência.'
-      },
-      {
-        id: 'C',
-        short: 'C',
-        label: '⚫ CICLO C',
-        cls: 'c-c',
-        color: '#9ca3af',
-        soft: 'rgba(156,163,175,.20)',
-        glow: 'rgba(156,163,175,.10)',
-        disciplines: ['Direito Penal Militar', 'Processo Penal Militar', 'Realidade de Goiás'],
-        desc: 'Fechamento do segundo bloco específico. Leitura curta, revisão e questão seca.'
-      },
-      {
-        id: 'Q',
-        short: 'Q',
-        label: '🔥 QUESTÕES',
-        cls: 'c-q',
-        color: '#fb923c',
-        soft: 'rgba(251,146,60,.20)',
-        glow: 'rgba(251,146,60,.12)',
-        disciplines: ['Bloco misto de questões', 'Correção de erros', 'Mapeamento por disciplina'],
-        desc: 'Caos controlado. Questões misturadas, sem separação por matéria, para forçar recuperação rápida de conteúdo.'
-      },
-      {
-        id: 'SIM',
-        short: 'SIM',
-        label: '🎯 SIMULADO',
-        cls: 'c-sim',
-        color: '#ef4444',
-        soft: 'rgba(239,68,68,.20)',
-        glow: 'rgba(239,68,68,.12)',
-        disciplines: ['Simulado completo PMGO/AOCP', 'Correção detalhada', 'Registro de falhas'],
-        desc: 'Dia de prova. Controle de tempo, marcação limpa, correção dura e leitura do padrão de erro depois.'
-      }
+    const COLOR_PRESETS = {
+      blue:   { label: 'Azul',   cls: 'c-blue',   color: '#60a5fa', soft: 'rgba(96,165,250,.20)', glow: 'rgba(96,165,250,.12)' },
+      green:  { label: 'Verde',  cls: 'c-green',  color: '#4ade80', soft: 'rgba(74,222,128,.20)', glow: 'rgba(74,222,128,.12)' },
+      gray:   { label: 'Cinza',  cls: 'c-gray',   color: '#9ca3af', soft: 'rgba(156,163,175,.20)', glow: 'rgba(156,163,175,.10)' },
+      yellow: { label: 'Amarelo',cls: 'c-yellow', color: '#fbbf24', soft: 'rgba(251,191,36,.20)', glow: 'rgba(251,191,36,.12)' },
+      orange: { label: 'Laranja',cls: 'c-orange', color: '#fb923c', soft: 'rgba(251,146,60,.20)', glow: 'rgba(251,146,60,.12)' },
+      purple: { label: 'Roxo',   cls: 'c-purple', color: '#a78bfa', soft: 'rgba(167,139,250,.20)', glow: 'rgba(167,139,250,.12)' }
+    };
+
+    const DEFAULT_DISCIPLINES = [
+      { key: cryptoRandom(), name: 'Língua Portuguesa', weight: 2, colorKey: 'blue' },
+      { key: cryptoRandom(), name: 'Direito Penal', weight: 3, colorKey: 'green' },
+      { key: cryptoRandom(), name: 'Direito Constitucional', weight: 2, colorKey: 'purple' },
+      { key: cryptoRandom(), name: 'Direito Processual Penal', weight: 2, colorKey: 'orange' },
+      { key: cryptoRandom(), name: 'Direito Administrativo', weight: 2, colorKey: 'yellow' },
+      { key: cryptoRandom(), name: 'Legislação Extravagante', weight: 2, colorKey: 'gray' }
     ];
+
+    const DEFAULT_CONFIG = {
+      systemName: 'Virtus et Honor',
+      subtitle: 'Base seca e sólida: rotação por disciplinas, com peso configurável e estrutura preparada para crescer depois.',
+      confirmReset: true
+    };
+
+    let appState = null;
+    let isAdvancingCycle = false;
+
+    function cryptoRandom() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
 
     function defaultState() {
       return {
-        pos: 0,
+        schedule: buildSchedule(DEFAULT_DISCIPLINES),
+        scheduleIndex: 0,
+        rotationCount: 0,
         total: 0,
-        simulados: 0,
-        history: []
+        history: [],
+        disciplines: structuredCloneSafe(DEFAULT_DISCIPLINES),
+        config: { ...DEFAULT_CONFIG },
+        revision: 0,
+        updatedAt: null
       };
     }
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : defaultState();
-      } catch {
-        return defaultState();
-      }
+    function structuredCloneSafe(value) {
+      return JSON.parse(JSON.stringify(value));
     }
 
-    function saveState(state) {
+    function safeParse(value) {
+      try { return JSON.parse(value); } catch { return null; }
+    }
+
+    function buildSchedule(disciplines) {
+      const active = disciplines
+        .filter(d => d && typeof d.name === 'string' && d.name.trim() && Number(d.weight) > 0)
+        .map(d => ({ ...d, name: d.name.trim(), weight: Math.max(1, Number(d.weight) || 1) }));
+
+      const schedule = [];
+      active.forEach(discipline => {
+        for (let i = 1; i <= discipline.weight; i += 1) {
+          schedule.push({
+            key: `${discipline.key}::${i}`,
+            disciplineKey: discipline.key,
+            occurrence: i,
+            totalOccurrences: discipline.weight
+          });
+        }
+      });
+
+      return schedule;
+    }
+
+    function normalizeState(raw) {
+      const base = defaultState();
+      const normalized = {
+        ...base,
+        ...(raw || {}),
+        config: { ...DEFAULT_CONFIG, ...((raw && raw.config) || {}) }
+      };
+
+      normalized.disciplines = Array.isArray(raw?.disciplines) && raw.disciplines.length
+        ? raw.disciplines.map(normalizeDiscipline).filter(Boolean)
+        : structuredCloneSafe(DEFAULT_DISCIPLINES);
+
+      normalized.schedule = Array.isArray(raw?.schedule) && raw.schedule.length
+        ? raw.schedule
+        : buildSchedule(normalized.disciplines);
+
+      if (!normalized.schedule.length) {
+        normalized.disciplines = structuredCloneSafe(DEFAULT_DISCIPLINES);
+        normalized.schedule = buildSchedule(normalized.disciplines);
+      }
+
+      normalized.scheduleIndex = Number.isInteger(normalized.scheduleIndex) && normalized.scheduleIndex >= 0
+        ? normalized.scheduleIndex % normalized.schedule.length
+        : 0;
+
+      normalized.rotationCount = Number.isInteger(normalized.rotationCount) && normalized.rotationCount >= 0
+        ? normalized.rotationCount
+        : 0;
+
+      normalized.total = Number.isInteger(normalized.total) && normalized.total >= 0 ? normalized.total : 0;
+      normalized.revision = Number.isInteger(normalized.revision) && normalized.revision >= 0 ? normalized.revision : 0;
+      normalized.updatedAt = normalized.updatedAt || null;
+      normalized.history = Array.isArray(normalized.history) ? normalized.history.map(normalizeHistoryItem).filter(Boolean) : [];
+      return normalized;
+    }
+
+    function normalizeDiscipline(item) {
+      if (!item || typeof item !== 'object') return null;
+      const name = typeof item.name === 'string' ? item.name.trim() : '';
+      if (!name) return null;
+      const colorKey = COLOR_PRESETS[item.colorKey] ? item.colorKey : 'blue';
+      return {
+        key: item.key || cryptoRandom(),
+        name,
+        weight: Math.max(1, Number(item.weight) || 1),
+        colorKey
+      };
+    }
+
+    function normalizeHistoryItem(item) {
+      if (!item || typeof item !== 'object') return null;
+      return {
+        disciplineKey: item.disciplineKey || null,
+        name: item.name || 'Disciplina',
+        weight: Math.max(1, Number(item.weight) || 1),
+        occurrence: Math.max(1, Number(item.occurrence) || 1),
+        totalOccurrences: Math.max(1, Number(item.totalOccurrences) || 1),
+        isoDate: item.isoDate || new Date().toISOString().slice(0, 10),
+        rotationNumber: Math.max(1, Number(item.rotationNumber) || 1),
+        colorKey: COLOR_PRESETS[item.colorKey] ? item.colorKey : 'blue'
+      };
+    }
+
+    function loadFromStorage() {
+      const current = safeParse(localStorage.getItem(STORAGE_KEY));
+      if (current) return normalizeState(current);
+
+      for (const key of LEGACY_KEYS) {
+        const legacy = safeParse(localStorage.getItem(key));
+        if (legacy) {
+          const migrated = defaultState();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+          return migrated;
+        }
+      }
+
+      return defaultState();
+    }
+
+    function persistState(state) {
+      state.revision += 1;
+      state.updatedAt = new Date().toISOString();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function getBlockLabel(pos) {
-      const p = pos % CYCLES.length;
-      if (p <= 3) return `Bloco 1 · Passo ${p + 1}/4`;
-      if (p <= 7) return `Bloco 2 · Passo ${p - 3}/4`;
-      return 'Rotação completa · Simulado';
+    function currentScheduleItem() {
+      return appState.schedule[appState.scheduleIndex];
     }
 
-    function getShortDate() {
-      const now = new Date();
-      return now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    function nextScheduleItem() {
+      return appState.schedule[(appState.scheduleIndex + 1) % appState.schedule.length];
     }
 
-    function truncate(text, max = 68) {
+    function getDisciplineByKey(key) {
+      return appState.disciplines.find(item => item.key === key) || null;
+    }
+
+    function getPreset(colorKey) {
+      return COLOR_PRESETS[colorKey] || COLOR_PRESETS.blue;
+    }
+
+    function getIsoDate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function formatDateForDisplay(isoDate) {
+      if (!isoDate || typeof isoDate !== 'string') return '—';
+      const [year, month, day] = isoDate.split('-');
+      if (!year || !month || !day) return isoDate;
+      return `${day}/${month}/${year}`;
+    }
+
+    function truncate(text, max = 78) {
       return text.length > max ? `${text.slice(0, max - 1)}…` : text;
     }
 
-    function render() {
-      const state = loadState();
-      const current = CYCLES[state.pos % CYCLES.length];
-      const next = CYCLES[(state.pos + 1) % CYCLES.length];
-      const rotationIndex = (state.pos % CYCLES.length) + 1;
-      const progress = (rotationIndex / CYCLES.length) * 100;
+    function getPhaseLabel() {
+      return `Posição ${appState.scheduleIndex + 1} da rotação`;
+    }
 
-      document.getElementById('stat-total').textContent = state.total;
-      document.getElementById('stat-simulados').textContent = state.simulados;
+    function updateHeaderConfig(config) {
+      document.querySelector('.title').textContent = config.systemName || DEFAULT_CONFIG.systemName;
+      document.querySelector('.subtitle').textContent = config.subtitle || DEFAULT_CONFIG.subtitle;
+    }
 
-      const card = document.getElementById('focus-card');
-      card.style.setProperty('--cycle-color', current.color);
-      card.style.setProperty('--cycle-soft', current.soft);
-      card.style.setProperty('--cycle-glow', current.glow);
+    function renderHistory(list) {
+      const historyEl = document.getElementById('history-list');
+      if (!list.length) {
+        historyEl.innerHTML = '<div class="history-empty">Nenhum registro ainda. O sistema começa a construir histórico quando você concluir a primeira disciplina.</div>';
+        return;
+      }
 
-      const badge = document.getElementById('cycle-badge');
-      badge.className = `badge ${current.cls}`;
-      badge.textContent = current.label;
+      historyEl.innerHTML = [...list].reverse().slice(0, 20).map((item, index) => {
+        const preset = getPreset(item.colorKey);
+        return `
+          <div class="history-item">
+            <div class="history-index">${list.length - index}</div>
+            <div class="history-main">
+              <div><span class="badge ${preset.cls}">${item.name}</span></div>
+              <div class="history-disc">R${item.rotationNumber} · ocorrência ${item.occurrence}/${item.totalOccurrences} · peso ${item.weight}</div>
+            </div>
+            <div class="history-date">${formatDateForDisplay(item.isoDate)}</div>
+          </div>
+        `;
+      }).join('');
+    }
 
-      document.getElementById('cycle-name').textContent = current.short;
-      document.getElementById('cycle-phase').textContent = getBlockLabel(state.pos);
-      document.getElementById('rotation-text').textContent = `${rotationIndex} / ${CYCLES.length}`;
-      document.getElementById('progress-fill').style.width = `${progress}%`;
-      document.getElementById('cycle-desc').textContent = current.desc;
+    function renderWeights() {
+      const weightList = document.getElementById('weight-list');
+      if (!appState.disciplines.length) {
+        weightList.innerHTML = '<div class="empty-box">Nenhuma disciplina ativa.</div>';
+        return;
+      }
 
-      const disciplinesEl = document.getElementById('disciplines');
-      disciplinesEl.innerHTML = current.disciplines.map(item => `
-        <div class="discipline">
-          <span class="discipline-dot"></span>
-          <span>${item}</span>
+      weightList.innerHTML = appState.disciplines
+        .slice()
+        .sort((a, b) => b.weight - a.weight || a.name.localeCompare(b.name, 'pt-BR'))
+        .map(item => {
+          const preset = getPreset(item.colorKey);
+          return `
+            <div class="weight-item">
+              <div class="weight-name">${item.name}</div>
+              <div class="weight-info">Peso ${item.weight}</div>
+              <div class="swatch" style="background:${preset.color}"></div>
+            </div>
+          `;
+        }).join('');
+    }
+
+    function renderDisciplineEditor() {
+      const list = document.getElementById('discipline-editor-list');
+      if (!appState.disciplines.length) {
+        list.innerHTML = '<div class="empty-box">Sem disciplinas. Adicione pelo formulário acima.</div>';
+        return;
+      }
+
+      list.innerHTML = appState.disciplines.map(item => `
+        <div class="discipline-editor-card" data-discipline-key="${item.key}">
+          <div class="inline-grid">
+            <div class="form-col">
+              <label>Nome</label>
+              <input class="field js-discipline-name" type="text" value="${escapeHtml(item.name)}" maxlength="60" />
+            </div>
+            <div class="form-col">
+              <label>Peso</label>
+              <input class="field js-discipline-weight" type="number" min="1" max="10" step="1" value="${item.weight}" />
+            </div>
+            <div class="form-col">
+              <label>Cor</label>
+              <select class="select js-discipline-color">
+                ${Object.entries(COLOR_PRESETS).map(([key, preset]) => `<option value="${key}" ${item.colorKey === key ? 'selected' : ''}>${preset.label}</option>`).join('')}
+              </select>
+            </div>
+            <button class="btn-secondary js-remove-discipline" type="button">remover</button>
+          </div>
         </div>
       `).join('');
 
-      const nextBadge = document.getElementById('next-badge');
-      nextBadge.innerHTML = `<span class="badge ${next.cls}">${next.label}</span>`;
-      document.getElementById('next-disc').textContent = next.disciplines.join(' · ');
+      list.querySelectorAll('.js-remove-discipline').forEach(button => {
+        button.addEventListener('click', event => {
+          const card = event.target.closest('[data-discipline-key]');
+          const key = card?.getAttribute('data-discipline-key');
+          if (!key) return;
+          appState.disciplines = appState.disciplines.filter(item => item.key !== key);
+          if (!appState.disciplines.length) {
+            appState.disciplines = [{ key: cryptoRandom(), name: 'Direito Penal', weight: 1, colorKey: 'green' }];
+          }
+          rebuildScheduleAfterDisciplineChange();
+          renderDisciplineEditor();
+          renderWeights();
+          render();
+        });
+      });
+    }
 
-      document.getElementById('sim-alert').classList.toggle('show', current.id === 'SIM');
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
 
-      const historyEl = document.getElementById('history-list');
-      if (!state.history.length) {
-        historyEl.innerHTML = `<div class="history-empty">Nenhum registro ainda. O sistema começa a construir histórico quando você concluir o primeiro ciclo.</div>`;
+    function populateSettingsForm() {
+      const settingsModal = document.getElementById('settings-modal');
+      if (!settingsModal.classList.contains('show')) return;
+      document.getElementById('cfg-system-name').value = appState.config.systemName ?? DEFAULT_CONFIG.systemName;
+      document.getElementById('cfg-subtitle').value = appState.config.subtitle ?? DEFAULT_CONFIG.subtitle;
+      document.getElementById('cfg-confirm-reset').checked = Boolean(appState.config.confirmReset);
+      document.getElementById('new-discipline-name').value = '';
+      document.getElementById('new-discipline-weight').value = 1;
+      document.getElementById('new-discipline-color').value = 'blue';
+      renderDisciplineEditor();
+    }
+
+    function render() {
+      if (!appState.schedule.length) return;
+      const currentItem = currentScheduleItem();
+      const nextItem = nextScheduleItem();
+      const currentDiscipline = getDisciplineByKey(currentItem.disciplineKey);
+      const nextDiscipline = getDisciplineByKey(nextItem.disciplineKey);
+      const preset = getPreset(currentDiscipline?.colorKey);
+      const nextPreset = getPreset(nextDiscipline?.colorKey);
+      const progress = ((appState.scheduleIndex + 1) / appState.schedule.length) * 100;
+
+      document.getElementById('stat-total').textContent = appState.total;
+      document.getElementById('stat-rotations').textContent = appState.rotationCount;
+      document.getElementById('stat-disciplines').textContent = appState.disciplines.length;
+
+      updateHeaderConfig(appState.config);
+
+      const card = document.getElementById('focus-card');
+      card.style.setProperty('--cycle-color', preset.color);
+      card.style.setProperty('--cycle-soft', preset.soft);
+      card.style.setProperty('--cycle-glow', preset.glow);
+
+      const badge = document.getElementById('cycle-badge');
+      badge.className = `badge ${preset.cls}`;
+      badge.textContent = 'DISCIPLINA';
+
+      const title = currentDiscipline?.name || 'Disciplina';
+      document.getElementById('cycle-name').textContent = title;
+      document.getElementById('discipline-title').textContent = title;
+      document.getElementById('cycle-phase').textContent = getPhaseLabel();
+      document.getElementById('rotation-text').textContent = `${appState.scheduleIndex + 1} / ${appState.schedule.length}`;
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      document.getElementById('discipline-weight-chip').textContent = `Peso ${currentDiscipline?.weight ?? 1}`;
+      document.getElementById('discipline-pass-chip').textContent = `Ocorrência ${currentItem.occurrence}/${currentItem.totalOccurrences}`;
+      document.getElementById('discipline-desc').textContent = `Esta disciplina aparece ${currentDiscipline?.weight ?? 1} vez(es) por rotação. Quanto maior o peso, mais presença no ciclo.`;
+      document.getElementById('discipline-note-1').textContent = `Peso maior = mais aparições. Hoje: ${title}.`;
+      document.getElementById('discipline-note-2').textContent = `Rotação atual: ${appState.schedule.length} posição(ões) geradas só com disciplinas.`;
+      document.getElementById('cycle-desc').textContent = 'Base seca: avance apenas quando realmente concluir o bloco de estudo da disciplina atual.';
+
+      document.getElementById('next-badge').innerHTML = `<span class="badge ${nextPreset.cls}">PRÓXIMA</span>`;
+      document.getElementById('next-disc').textContent = `${nextDiscipline?.name || 'Disciplina'} · ocorrência ${nextItem.occurrence}/${nextItem.totalOccurrences}`;
+
+      renderWeights();
+      renderHistory(appState.history);
+      populateSettingsForm();
+    }
+
+    function rebuildScheduleAfterDisciplineChange() {
+      const previousItem = appState.schedule[appState.scheduleIndex];
+      appState.schedule = buildSchedule(appState.disciplines);
+      if (!appState.schedule.length) {
+        appState.disciplines = structuredCloneSafe(DEFAULT_DISCIPLINES);
+        appState.schedule = buildSchedule(appState.disciplines);
+      }
+
+      if (!previousItem) {
+        appState.scheduleIndex = 0;
+        return;
+      }
+
+      const sameIndex = appState.schedule.findIndex(item => item.disciplineKey === previousItem.disciplineKey && item.occurrence === previousItem.occurrence);
+      appState.scheduleIndex = sameIndex >= 0 ? sameIndex : 0;
+    }
+
+    function advanceScheduleState() {
+      const currentItem = currentScheduleItem();
+      const discipline = getDisciplineByKey(currentItem.disciplineKey);
+      if (!discipline) return;
+
+      appState.history.push({
+        disciplineKey: discipline.key,
+        name: discipline.name,
+        weight: discipline.weight,
+        occurrence: currentItem.occurrence,
+        totalOccurrences: currentItem.totalOccurrences,
+        isoDate: getIsoDate(),
+        rotationNumber: appState.rotationCount + 1,
+        colorKey: discipline.colorKey
+      });
+
+      appState.total += 1;
+
+      if (appState.scheduleIndex === appState.schedule.length - 1) {
+        appState.scheduleIndex = 0;
+        appState.rotationCount += 1;
       } else {
-        historyEl.innerHTML = [...state.history].reverse().slice(0, 12).map((item, index) => `
-          <div class="history-item">
-            <div class="history-index">${state.history.length - index}</div>
-            <div class="history-main">
-              <div><span class="badge ${item.cls}">${item.label}</span></div>
-              <div class="history-disc">${truncate(item.disc)}</div>
-            </div>
-            <div class="history-date">${item.date}</div>
-          </div>
-        `).join('');
+        appState.scheduleIndex += 1;
+      }
+    }
+
+    function syncFromStorageIfNewer() {
+      const raw = safeParse(localStorage.getItem(STORAGE_KEY));
+      if (!raw) return;
+      const external = normalizeState(raw);
+      if (external.revision > appState.revision) {
+        appState = external;
       }
     }
 
     function markDone() {
-      const state = loadState();
-      const current = CYCLES[state.pos % CYCLES.length];
+      if (isAdvancingCycle) return;
+      isAdvancingCycle = true;
 
-      state.history.push({
-        id: current.id,
-        label: current.label,
-        cls: current.cls,
-        disc: current.disciplines.join(' · '),
-        date: getShortDate()
-      });
-
-      state.total += 1;
-      if (current.id === 'SIM') state.simulados += 1;
-      state.pos += 1;
-      saveState(state);
+      syncFromStorageIfNewer();
+      advanceScheduleState();
+      persistState(appState);
 
       const btn = document.getElementById('btn-done');
       const original = btn.innerHTML;
-      btn.innerHTML = '<span>✓ ciclo registrado</span>';
+      btn.disabled = true;
+      btn.innerHTML = '<span>✓ disciplina registrada</span>';
       btn.style.borderColor = 'rgba(74,222,128,.35)';
       btn.style.color = '#bbf7d0';
+      btn.style.pointerEvents = 'none';
 
       setTimeout(() => {
         btn.innerHTML = original;
         btn.style.borderColor = '';
         btn.style.color = '';
+        btn.style.pointerEvents = '';
+        btn.disabled = false;
+        isAdvancingCycle = false;
         render();
       }, 550);
     }
 
-    function resetSystem() {
-      const confirmReset = window.confirm('Zerar todo o histórico e reiniciar a rotação?');
-      if (!confirmReset) return;
-      localStorage.removeItem(STORAGE_KEY);
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      if (id === 'history-modal') renderHistory(appState.history);
+      if (id === 'settings-modal') populateSettingsForm();
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function addDisciplineFromForm() {
+      const nameEl = document.getElementById('new-discipline-name');
+      const weightEl = document.getElementById('new-discipline-weight');
+      const colorEl = document.getElementById('new-discipline-color');
+
+      const name = nameEl.value.trim();
+      const weight = Math.max(1, Number(weightEl.value) || 1);
+      const colorKey = COLOR_PRESETS[colorEl.value] ? colorEl.value : 'blue';
+
+      if (!name) return;
+
+      appState.disciplines.push({ key: cryptoRandom(), name, weight, colorKey });
+      rebuildScheduleAfterDisciplineChange();
+      renderDisciplineEditor();
+      renderWeights();
+      render();
+
+      nameEl.value = '';
+      weightEl.value = 1;
+      colorEl.value = 'blue';
+      nameEl.focus();
+    }
+
+    function saveSettings() {
+      syncFromStorageIfNewer();
+
+      appState.config = {
+        systemName: document.getElementById('cfg-system-name').value.trim() || DEFAULT_CONFIG.systemName,
+        subtitle: document.getElementById('cfg-subtitle').value.trim() || DEFAULT_CONFIG.subtitle,
+        confirmReset: document.getElementById('cfg-confirm-reset').checked
+      };
+
+      const editorCards = [...document.querySelectorAll('#discipline-editor-list [data-discipline-key]')];
+      const nextDisciplines = [];
+
+      editorCards.forEach(card => {
+        const key = card.getAttribute('data-discipline-key');
+        const name = card.querySelector('.js-discipline-name').value.trim();
+        const weight = Math.max(1, Number(card.querySelector('.js-discipline-weight').value) || 1);
+        const colorKey = COLOR_PRESETS[card.querySelector('.js-discipline-color').value] ? card.querySelector('.js-discipline-color').value : 'blue';
+        if (!name) return;
+        nextDisciplines.push({ key, name, weight, colorKey });
+      });
+
+      appState.disciplines = nextDisciplines.length ? nextDisciplines : [{ key: cryptoRandom(), name: 'Direito Penal', weight: 1, colorKey: 'green' }];
+      rebuildScheduleAfterDisciplineChange();
+      persistState(appState);
+      closeModal('settings-modal');
       render();
     }
 
-    document.getElementById('btn-done').addEventListener('click', markDone);
-    document.getElementById('btn-reset').addEventListener('click', resetSystem);
+    function hardResetStorage() {
+      localStorage.removeItem(STORAGE_KEY);
+      LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+        LEGACY_KEYS.forEach(key => sessionStorage.removeItem(key));
+      } catch {}
+    }
 
-    render();
+    function requestReset() {
+      if (appState.config.confirmReset) {
+        openModal('reset-modal');
+        return;
+      }
+      confirmReset();
+    }
+
+    function confirmReset() {
+      hardResetStorage();
+      appState = defaultState();
+      persistState(appState);
+      closeModal('reset-modal');
+      closeModal('history-modal');
+      closeModal('settings-modal');
+      render();
+    }
+
+    function setupModalEvents() {
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close')));
+      });
+
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal(modal.id);
+        });
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal('history-modal');
+          closeModal('settings-modal');
+          closeModal('reset-modal');
+        }
+      });
+    }
+
+    function setupCrossTabSync() {
+      window.addEventListener('storage', (event) => {
+        if (event.key !== STORAGE_KEY || !event.newValue) return;
+        const external = normalizeState(safeParse(event.newValue));
+        if (external.revision > appState.revision) {
+          appState = external;
+          render();
+        }
+      });
+    }
+
+    function init() {
+      appState = loadFromStorage();
+      document.getElementById('btn-done').addEventListener('click', markDone);
+      document.getElementById('btn-history').addEventListener('click', () => openModal('history-modal'));
+      document.getElementById('btn-settings').addEventListener('click', () => openModal('settings-modal'));
+      document.getElementById('btn-reset').addEventListener('click', requestReset);
+      document.getElementById('btn-reset-confirm').addEventListener('click', confirmReset);
+      document.getElementById('btn-settings-save').addEventListener('click', saveSettings);
+      document.getElementById('btn-add-discipline').addEventListener('click', addDisciplineFromForm);
+      setupModalEvents();
+      setupCrossTabSync();
+      render();
+    }
+
+    init();
   </script>
 </body>
 </html>
