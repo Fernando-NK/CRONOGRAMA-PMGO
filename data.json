@@ -1,0 +1,156 @@
+{
+  "storage": {
+    "key": "pmgo_vh_v8",
+    "legacyKeys": [
+      "pmgo_widget_vh_v7",
+      "pmgo_widget_vh_v6",
+      "pmgo_widget_vh_v5",
+      "pmgo_widget_vh_v4",
+      "pmgo_widget_vh_v3",
+      "pmgo_ciclos_v2"
+    ]
+  },
+  "weekdays": {
+    "keys": [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday"
+    ],
+    "labels": {
+      "sunday": "Domingo",
+      "monday": "Segunda",
+      "tuesday": "Terça",
+      "wednesday": "Quarta",
+      "thursday": "Quinta",
+      "friday": "Sexta",
+      "saturday": "Sábado"
+    }
+  },
+  "colorPresets": {
+    "blue": {
+      "label": "Azul",
+      "cls": "c-blue",
+      "hex": "#60a5fa",
+      "soft": "rgba(96,165,250,.20)",
+      "glow": "rgba(96,165,250,.12)"
+    },
+    "green": {
+      "label": "Verde",
+      "cls": "c-green",
+      "hex": "#4ade80",
+      "soft": "rgba(74,222,128,.20)",
+      "glow": "rgba(74,222,128,.12)"
+    },
+    "gray": {
+      "label": "Cinza",
+      "cls": "c-gray",
+      "hex": "#9ca3af",
+      "soft": "rgba(156,163,175,.20)",
+      "glow": "rgba(156,163,175,.10)"
+    },
+    "yellow": {
+      "label": "Amarelo",
+      "cls": "c-yellow",
+      "hex": "#fbbf24",
+      "soft": "rgba(251,191,36,.20)",
+      "glow": "rgba(251,191,36,.12)"
+    },
+    "orange": {
+      "label": "Laranja",
+      "cls": "c-orange",
+      "hex": "#fb923c",
+      "soft": "rgba(251,146,60,.20)",
+      "glow": "rgba(251,146,60,.12)"
+    },
+    "purple": {
+      "label": "Roxo",
+      "cls": "c-purple",
+      "hex": "#a78bfa",
+      "soft": "rgba(167,139,250,.20)",
+      "glow": "rgba(167,139,250,.12)"
+    },
+    "red": {
+      "label": "Vermelho",
+      "cls": "c-red",
+      "hex": "#ef4444",
+      "soft": "rgba(239,68,68,.20)",
+      "glow": "rgba(239,68,68,.12)"
+    }
+  },
+  "defaultConfig": {
+    "systemName": "Virtus et Honor",
+    "subtitle": "Fila cíclica perpétua — o avanço real depende apenas da sua conclusão.",
+    "defaultSlots": 3,
+    "sundayMode": "freeze",
+    "confirmReset": true,
+    "weekdaySlots": {
+      "sunday": 0,
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 0
+    }
+  },
+  "defaultDisciplines": [
+    {
+      "name": "Língua Portuguesa",
+      "weight": 3,
+      "colorKey": "blue",
+      "macroCycle": "A"
+    },
+    {
+      "name": "Direito Penal",
+      "weight": 3,
+      "colorKey": "green",
+      "macroCycle": "A"
+    },
+    {
+      "name": "Direito Constitucional",
+      "weight": 3,
+      "colorKey": "purple",
+      "macroCycle": "A"
+    },
+    {
+      "name": "Dir. Processual Penal",
+      "weight": 3,
+      "colorKey": "orange",
+      "macroCycle": "B"
+    },
+    {
+      "name": "Direito Administrativo",
+      "weight": 3,
+      "colorKey": "yellow",
+      "macroCycle": "B"
+    },
+    {
+      "name": "Legislação Extravagante",
+      "weight": 2,
+      "colorKey": "gray",
+      "macroCycle": "B"
+    },
+    {
+      "name": "Dir. Penal Militar",
+      "weight": 2,
+      "colorKey": "red",
+      "macroCycle": "C"
+    },
+    {
+      "name": "Proc. Penal Militar",
+      "weight": 2,
+      "colorKey": "red",
+      "macroCycle": "C"
+    },
+    {
+      "name": "Realidade de Goiás",
+      "weight": 1,
+      "colorKey": "gray",
+      "macroCycle": "C"
+    }
+  ]
+}
