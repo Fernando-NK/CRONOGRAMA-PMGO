@@ -1,7 +1,5 @@
 'use strict';
 
-'use strict';
-
 /* ═══════════════════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════════════════ */
@@ -95,7 +93,6 @@ function getDaySlots(config, wk) {
   const s = Number(config.weekdaySlots?.[wk] ?? 0);
   return s > 0 ? s : clamp(config.defaultSlots, 1, 10, 3);
 }
-
 
 function simulateFuturePackage(dateKey, prevDay, cursor, carryBuffer) {
   const wk    = wkFromDateKey(dateKey);
@@ -213,7 +210,6 @@ const Store = {
     if (this.ok()) {
       try { localStorage.setItem(STORAGE_KEY, s); return; } catch {}
     }
-    // Hash fallback for restricted embed/iframe/Safari environments
     try {
       const enc = encodeURIComponent(btoa(unescape(encodeURIComponent(s))));
       history.replaceState(null,'',`${location.pathname}${location.search}#vh=${enc}`);
@@ -224,13 +220,11 @@ const Store = {
     if (this.ok()) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return safeParse(raw);
-      // Migrate from any legacy version key
       for (const k of LEGACY_KEYS) {
         const leg = localStorage.getItem(k);
         if (leg) return safeParse(leg);
       }
     }
-    // Hash fallback
     const m = location.hash.match(/vh=([^&]+)/);
     if (!m) return null;
     try {
@@ -285,7 +279,6 @@ function emptyDay(dateKey) {
 function normalizeState(raw) {
   if (!raw || typeof raw !== 'object') return emptyState();
 
-  // Config: merge with defaults so new fields always exist
   const cfg = { ...deepClone(DEFAULT_CONFIG), ...(raw.config || {}) };
   cfg.weekdaySlots = { ...deepClone(DEFAULT_CONFIG.weekdaySlots), ...(cfg.weekdaySlots || {}) };
 
@@ -413,12 +406,9 @@ function buildQueue(disciplines) {
     const candidates = slots
       .filter(s => s.rem > 0)
       .sort((a, b) => {
-        // Anti-consecutive: push last-used to the back
         if (a.discKey === last && b.discKey !== last) return  1;
         if (b.discKey === last && a.discKey !== last) return -1;
-        // Primary sort: highest remaining weight first
         if (b.rem !== a.rem) return b.rem - a.rem;
-        // Tiebreaker: stable alphabetical
         return a.name.localeCompare(b.name, 'pt-BR');
       });
 
@@ -460,9 +450,6 @@ function queuePreview(count = 4) {
 /* ═══════════════════════════════════════════════════════
    PACKAGE ENGINE
 ═══════════════════════════════════════════════════════ */
-
-// Dispatches `count` new items from the queue, advancing the cursor.
-// Detects cursor wrap to count completed rotations.
 function dispatchFromQueue(count, dateKey) {
   const items = [];
   const qLen  = appState.queue.length;
@@ -472,7 +459,6 @@ function dispatchFromQueue(count, dateKey) {
   let guard = 0;
 
   while (items.length < count && guard++ < qLen * 3) {
-    // Rotation complete: cursor wrapped back to the start
     if (c > 0 && c % qLen === 0) {
       appState.rotations++;
     }
@@ -505,10 +491,6 @@ function dispatchFromQueue(count, dateKey) {
   return items;
 }
 
-// Carries over ALL pending items from the previous day.
-// RULE: no discipline disappears without being completed.
-// The slot cap only limits how many NEW items are added,
-// never how many carry-overs are preserved.
 function carryPending(prevItems, targetDate) {
   return prevItems
     .filter(i => i.type === 'discipline' && !i.completed)
@@ -538,8 +520,6 @@ function buildSundayPkg(dateKey, mode) {
   }];
 }
 
-// Rebuilds today's package when the date changes (or when forced).
-// Returns true if a rebuild was triggered.
 function rollover(force = false) {
   const todayKey = isoDate();
   const wk       = wkFromDateKey(todayKey);
@@ -735,7 +715,6 @@ function handlePkgAction(e) {
       item.completed   = false;
       item.completedAt = null;
       appState.today.closedVisual = false;
-      // Remove the most recent matching history entry
       const idx = [...appState.history]
         .reverse()
         .findIndex(h => h.type === 'discipline' && h.discKey === item.disciplineKey && h.dateKey === appState.today.dateKey);
@@ -843,37 +822,32 @@ function renderHeader() {
   document.getElementById('hero-weekday').textContent = wkLabel(appState.today.dateKey);
   document.getElementById('hero-date').textContent = fmtDate(appState.today.dateKey);
   document.getElementById('hero-badge').textContent = appState.today.sundayModeActive ? 'DOMINGO ESPECIAL' : 'ROTAÇÃO OPERACIONAL';
+  document.getElementById('meta-slots').textContent = appState.today.sundayModeActive
+    ? `${pendingN()} PENDÊNCIAS PRESERVADAS`
+    : `${totalDiscN()} SLOT${totalDiscN() === 1 ? '' : 'S'}`;
+  document.getElementById('meta-pending').textContent = `${pendingN()} PENDENTE${pendingN() === 1 ? '' : 'S'}`;
+  document.getElementById('meta-rotations').textContent = `${appState.rotations} ROTAÇÃO${appState.rotations === 1 ? '' : 'ES'}`;
 }
 
 function renderStats() {
-  document.getElementById('meta-slots').textContent = appState.today.sundayModeActive ? 'domingo especial' : `${totalDiscN()} disciplina(s)`;
-  document.getElementById('meta-pending').textContent = `${pendingN()} pendente(s)`;
-  document.getElementById('meta-rotations').textContent = `${appState.rotations} rotação(ões)`;
+  const pct = totalDiscN() ? Math.round((doneTodayN() / totalDiscN()) * 100) : 0;
+  document.getElementById('pkg-pct').textContent = `${doneTodayN()} / ${totalDiscN()}`;
+  document.getElementById('pkg-fill').style.width = `${pct}%`;
+  document.getElementById('fc-state').textContent = appState.today.sundayModeActive
+    ? 'Domingo preserva a fila teórica'
+    : appState.today.closedVisual
+      ? 'Dia fechado visualmente'
+      : `${pendingN()} pendência(s) em aberto`;
 }
 
 function renderFocus() {
-  const pkg    = appState.today.packageItems;
-  const anchor = pkg.find(i => i.type === 'discipline' && !i.completed) || pkg.find(i => i.type === 'discipline') || pkg[0];
-  const preset = getPreset(anchor?.colorKey || 'blue');
-
-  const panel = document.getElementById('focus-card');
-  panel.style.setProperty('--accent', preset.hex);
-
-  const isSun = appState.today.sundayModeActive;
-  document.getElementById('fc-state').textContent = isSun
-    ? 'teoria congelada'
-    : `${doneTodayN()} de ${totalDiscN()} concluídas`;
-
-  const done  = doneTodayN();
-  const total = totalDiscN();
-  document.getElementById('pkg-pct').textContent  = `${done} / ${total}`;
-  document.getElementById('pkg-fill').style.width = total > 0 ? `${(done / total) * 100}%` : '0%';
-
   const grid = document.getElementById('today-pkg');
-  if (!pkg.length) {
-    grid.innerHTML = `<div class="empty-box">Nenhuma rotação ativa.</div>`;
+  const isSun = appState.today.sundayModeActive;
+
+  if (!appState.today.packageItems.length) {
+    grid.innerHTML = `<div class="empty-box">Nenhuma disciplina projetada para hoje.</div>`;
   } else {
-    grid.innerHTML = pkg.map((item, i) => {
+    grid.innerHTML = appState.today.packageItems.map((item, i) => {
       const cls = [
         'package-item',
         item.completed ? 'completed' : '',
@@ -924,7 +898,7 @@ function renderCalendar() {
   const days = buildCalendarPreview(9);
 
   box.innerHTML = days.map((day, idx) => {
-    const discs = day.packageItems.filter(i => i.type === 'discipline');
+    const discs = (day.packageItems || []).filter(i => i.type === 'discipline');
     const pending = discs.filter(i => !i.completed).length;
 
     const kicker = day.isToday
@@ -982,8 +956,8 @@ function renderCalendar() {
         </div>
 
         <div class="calendar-main">
-          <h3 class="calendar-day">${esc(day.weekdayLabel)}</h3>
-          <div class="calendar-date">${esc(day.dateLabel)}</div>
+          <h3 class="calendar-day">${esc(wkLabel(day.dateKey))}</h3>
+          <div class="calendar-date">${esc(fmtDate(day.dateKey))}</div>
         </div>
 
         <div class="calendar-load">${loadLabel}</div>
@@ -1009,144 +983,158 @@ function renderHistory() {
     const p    = getPreset(h.colorKey);
     const desc = h.dayClose
       ? `Fechamento visual · ${h.meta?.completed ?? 0}/${h.meta?.total ?? 0} concluídas`
-      : `Fila pos. ${h.queueIndex + 1} · teto ${h.slotsOnDay} · ciclo ${h.macroCycle}${h.carryOver ? ' · herdada' : ''}`;
+      : `${h.carryOver ? 'Herdada · ' : ''}Fila #${h.queueIndex + 1} · ${WEEKDAY_LABELS[h.weekdayKey] || '—'}`;
     return `<div class="history-item">
-      <div class="history-index">${appState.history.length - i}</div>
+      <div class="history-index" style="border:1px solid ${p.soft};color:${p.hex}">${String(i+1).padStart(2,'0')}</div>
       <div class="history-main">
-        <div><span class="badge ${p.cls}">${h.dayClose ? 'DIA FECHADO' : esc(h.name)}</span></div>
+        <strong>${esc(h.name)}</strong>
         <div class="history-disc">${esc(desc)}</div>
       </div>
-      <div class="history-date">${fmtDate(h.dateKey)}</div>
+      <div class="history-date">${fmtDateTime(h.completedIso)}</div>
     </div>`;
   }).join('');
 }
 
-function renderWdaySlots() {
-  document.getElementById('wday-slots').innerHTML = WEEKDAY_KEYS.map(k => `
+function populateSettings() {
+  document.getElementById('cfg-name').value = appState.config.systemName;
+  document.getElementById('cfg-subtitle').value = appState.config.subtitle;
+  document.getElementById('cfg-slots').value = appState.config.defaultSlots;
+  document.getElementById('cfg-sunday').value = appState.config.sundayMode;
+  document.getElementById('cfg-confirm-reset').checked = appState.config.confirmReset;
+
+  const wday = document.getElementById('wday-slots');
+  wday.innerHTML = WEEKDAY_KEYS.map(k => `
     <div class="disc-editor-card" data-wday="${k}">
-      <div class="inline-grid" style="grid-template-columns:1.3fr .6fr auto;">
-        <div class="form-col"><label>${WEEKDAY_LABELS[k]}</label><input class="field" type="text" value="${WEEKDAY_LABELS[k]}" disabled /></div>
-        <div class="form-col"><label>Slots</label><input class="field js-wday-slot" type="number" min="0" max="10" value="${Number(appState.config.weekdaySlots[k]||0)}" /></div>
-        <button class="btn-secondary" type="button" style="height:42px;" onclick="this.closest('[data-wday]').querySelector('.js-wday-slot').value=0">limpar</button>
+      <div class="inline-grid" style="grid-template-columns:1fr .55fr;">
+        <div class="form-col">
+          <label>${WEEKDAY_LABELS[k]}</label>
+          <input class="field js-wday-slot" type="number" min="0" max="10" value="${appState.config.weekdaySlots?.[k] ?? 0}" />
+        </div>
+        <div class="form-col">
+          <label>Status</label>
+          <input class="field" value="${k === 'sunday' ? 'Especial' : 'Ativo'}" disabled />
+        </div>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
+
+  const colorSelectOptions = Object.entries(COLOR_PRESETS)
+    .map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+  document.getElementById('new-disc-color').innerHTML = colorSelectOptions;
+
+  renderDiscEditor();
 }
 
 function renderDiscEditor() {
   const box = document.getElementById('disc-editor');
-  if (!appState.disciplines.length) { box.innerHTML = `<div class="empty-box">Nenhuma disciplina.</div>`; return; }
   box.innerHTML = appState.disciplines.map(d => `
     <div class="disc-editor-card" data-disc-key="${d.key}">
-      <div class="inline-grid" style="grid-template-columns:1.6fr .6fr .55fr .7fr auto;">
-        <div class="form-col"><label>Nome</label><input class="field js-disc-name" type="text" maxlength="60" value="${esc(d.name)}" /></div>
-        <div class="form-col"><label>Peso</label><input class="field js-disc-weight" type="number" min="1" max="10" value="${d.weight}" /></div>
-        <div class="form-col"><label>Ciclo</label>
-          <select class="select js-disc-cycle">${['A','B','C'].map(c=>`<option value="${c}" ${d.macroCycle===c?'selected':''}>${c}</option>`).join('')}</select>
+      <div class="inline-grid" style="grid-template-columns:1.6fr .55fr .6fr .8fr auto;">
+        <div class="form-col">
+          <label>Nome</label>
+          <input class="field js-disc-name" type="text" maxlength="60" value="${esc(d.name)}" />
         </div>
-        <div class="form-col"><label>Cor</label>
-          <select class="select js-disc-color">${Object.entries(COLOR_PRESETS).map(([k,p])=>`<option value="${k}" ${d.colorKey===k?'selected':''}>${p.label}</option>`).join('')}</select>
+        <div class="form-col">
+          <label>Peso</label>
+          <input class="field js-disc-weight" type="number" min="1" max="10" value="${d.weight}" />
         </div>
-        <button class="btn-secondary js-rm-disc" type="button" style="height:42px;padding:0 12px;">×</button>
+        <div class="form-col">
+          <label>Ciclo</label>
+          <select class="select js-disc-cycle">
+            <option value="A" ${d.macroCycle === 'A' ? 'selected' : ''}>A</option>
+            <option value="B" ${d.macroCycle === 'B' ? 'selected' : ''}>B</option>
+            <option value="C" ${d.macroCycle === 'C' ? 'selected' : ''}>C</option>
+          </select>
+        </div>
+        <div class="form-col">
+          <label>Cor</label>
+          <select class="select js-disc-color">
+            ${Object.entries(COLOR_PRESETS).map(([k,v]) => `<option value="${k}" ${d.colorKey === k ? 'selected' : ''}>${v.label}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn-danger js-remove-disc" type="button" style="height:42px;padding:0 12px;margin-top:22px;">×</button>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
 
-  box.querySelectorAll('.js-rm-disc').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const key = e.target.closest('[data-disc-key]')?.dataset.discKey;
-      if (!key) return;
+  box.querySelectorAll('.js-remove-disc').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('[data-disc-key]');
+      if (!card) return;
+      const key = card.dataset.discKey;
       appState.disciplines = appState.disciplines.filter(d => d.key !== key);
       if (!appState.disciplines.length) appState.disciplines = makeDefaultDisciplines();
-      rebuildQueue(true);
       renderDiscEditor();
-      persist();
-      render();
     });
   });
 }
 
-function setView(view) {
-  const operational = document.getElementById('view-operational');
-  const calendar    = document.getElementById('view-calendar');
-  const opTab       = document.getElementById('tab-operational');
-  const calTab      = document.getElementById('tab-calendar');
-  const target = view === 'calendar' ? 'calendar' : 'operational';
-  operational?.classList.toggle('is-hidden', target !== 'operational');
-  calendar?.classList.toggle('is-hidden', target !== 'calendar');
-  opTab?.classList.toggle('is-active', target === 'operational');
-  calTab?.classList.toggle('is-active', target === 'calendar');
-}
-
-function populateSettings() {
-  const m = document.getElementById('settings-modal');
-  if (!m.classList.contains('show')) return;
-  document.getElementById('cfg-name').value         = appState.config.systemName;
-  document.getElementById('cfg-subtitle').value     = appState.config.subtitle;
-  document.getElementById('cfg-slots').value        = appState.config.defaultSlots;
-  document.getElementById('cfg-sunday').value       = appState.config.sundayMode;
-  document.getElementById('cfg-confirm-reset').checked = Boolean(appState.config.confirmReset);
-  document.getElementById('new-disc-name').value    = '';
-  document.getElementById('new-disc-weight').value  = 1;
-  document.getElementById('new-disc-color').innerHTML =
-    Object.entries(COLOR_PRESETS).map(([k,p])=>`<option value="${k}">${p.label}</option>`).join('');
-  document.getElementById('new-disc-color').value   = 'blue';
-  renderWdaySlots();
-  renderDiscEditor();
-}
-
 /* ═══════════════════════════════════════════════════════
-   MODALS
+   MODALS + TABS
 ═══════════════════════════════════════════════════════ */
 function openModal(id) {
   const m = document.getElementById(id);
   if (!m) return;
+  if (id === 'history-modal') renderHistory();
+  if (id === 'settings-modal') populateSettings();
   m.classList.add('show');
   m.setAttribute('aria-hidden','false');
-  if (id === 'history-modal')  renderHistory();
-  if (id === 'settings-modal') populateSettings();
 }
-
 function closeModal(id) {
   const m = document.getElementById(id);
   if (!m) return;
   m.classList.remove('show');
   m.setAttribute('aria-hidden','true');
 }
-
-function setupModals() {
-  document.querySelectorAll('[data-close]').forEach(btn => {
-    btn.addEventListener('click', () => closeModal(btn.dataset.close));
-  });
-  document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') ['history-modal','settings-modal','reset-modal'].forEach(id => closeModal(id));
-  });
+function setTab(tab) {
+  const operational = tab === 'operational';
+  document.getElementById('tab-operational').classList.toggle('is-active', operational);
+  document.getElementById('tab-calendar').classList.toggle('is-active', !operational);
+  document.getElementById('view-operational').classList.toggle('is-hidden', !operational);
+  document.getElementById('view-calendar').classList.toggle('is-hidden', operational);
 }
 
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
-function init() {
-  const raw = Store.load();
-  appState  = raw ? normalizeState(raw) : emptyState();
-  rollover(false);
-  persist();
-
-  document.getElementById('btn-history').addEventListener('click',  () => openModal('history-modal'));
+function bind() {
+  document.getElementById('btn-rollover').addEventListener('click', forceRollover);
+  document.getElementById('btn-history').addEventListener('click', () => openModal('history-modal'));
   document.getElementById('btn-settings').addEventListener('click', () => openModal('settings-modal'));
-  document.getElementById('btn-reset').addEventListener('click',    requestReset);
+  document.getElementById('btn-reset').addEventListener('click', requestReset);
   document.getElementById('btn-reset-confirm').addEventListener('click', doReset);
   document.getElementById('btn-save-settings').addEventListener('click', saveSettings);
   document.getElementById('btn-add-disc').addEventListener('click', addDiscipline);
-  document.getElementById('btn-rollover').addEventListener('click', forceRollover);
-  document.getElementById('tab-operational').addEventListener('click', () => setView('operational'));
-  document.getElementById('tab-calendar').addEventListener('click', () => setView('calendar'));
-  document.getElementById('btn-open-calendar').addEventListener('click', () => setView('calendar'));
+  document.getElementById('btn-open-calendar').addEventListener('click', () => setTab('calendar'));
+  document.getElementById('tab-operational').addEventListener('click', () => setTab('operational'));
+  document.getElementById('tab-calendar').addEventListener('click', () => setTab('calendar'));
 
-  setupModals();
-  setView('operational');
-  render();
+  document.querySelectorAll('[data-close]').forEach(b => {
+    b.addEventListener('click', () => closeModal(b.dataset.close));
+  });
+
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) closeModal(m.id);
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['history-modal','settings-modal','reset-modal'].forEach(closeModal);
+    }
+  });
+
+  window.addEventListener('storage', () => {
+    syncIfNewer();
+    render();
+  });
 }
 
-init();
+(function init() {
+  appState = normalizeState(Store.load());
+  rollover(false);
+  persist();
+  bind();
+  render();
+})();
