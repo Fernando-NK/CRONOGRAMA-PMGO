@@ -919,36 +919,82 @@ function renderFocus() {
 
 function renderCalendar() {
   const box = document.getElementById('calendar-grid');
-  const days = buildCalendarPreview(7);
+  if (!box) return;
+
+  const days = buildCalendarPreview(9);
+
   box.innerHTML = days.map((day, idx) => {
     const discs = day.packageItems.filter(i => i.type === 'discipline');
     const pending = discs.filter(i => !i.completed).length;
-    const allDone = discs.length > 0 && discs.every(i => i.completed);
-    const label = day.isToday ? 'HOJE' : (idx === 1 ? 'AMANHÃ' : 'PROJEÇÃO');
-    const chips = day.sundayModeActive
-      ? `<span class="mini-chip">Domingo especial</span>`
+
+    const kicker = day.isToday
+      ? 'HOJE'
+      : idx === 1
+        ? 'AMANHÃ'
+        : day.sundayModeActive
+          ? 'DOM'
+          : 'PROJEÇÃO';
+
+    const stateClass = [
+      'calendar-card',
+      day.isToday ? 'today' : '',
+      idx === 1 && !day.isToday ? 'tomorrow' : '',
+      day.sundayModeActive ? 'sunday' : '',
+      !day.isToday && idx !== 1 && !day.sundayModeActive ? 'projected' : '',
+    ].filter(Boolean).join(' ');
+
+    const loadLabel = day.sundayModeActive
+      ? 'DOM'
+      : `${discs.length} DISC`;
+
+    const discList = day.sundayModeActive
+      ? `
+        <div class="calendar-disc-list">
+          <div class="calendar-disc">Domingo especial</div>
+          <div class="calendar-disc">Teoria congelada</div>
+          <div class="calendar-disc">Sem nova carga teórica</div>
+        </div>
+      `
       : discs.length
-        ? discs.map(d => `<span class="calendar-disc ${d.completed ? 'done' : ''}">${esc(d.name)}</span>`).join('')
-        : `<span class="mini-chip">Sem disciplinas</span>`;
+        ? `
+          <div class="calendar-disc-list">
+            ${discs.map(d => `
+              <div class="calendar-disc">${esc(d.name)}</div>
+            `).join('')}
+          </div>
+        `
+        : `
+          <div class="calendar-disc-list">
+            <div class="calendar-disc">Sem disciplinas projetadas</div>
+          </div>
+        `;
 
     const note = day.sundayModeActive
-      ? (appState.config.sundayMode === 'manual' ? 'Domingo livre. Teoria preservada.' : 'Teoria congelada. Pendências seguem para a segunda.')
-      : allDone
-        ? 'Dia projetado sem transbordo.'
-        : `${pending} pendente(s) projetada(s) para este dia.`;
+      ? 'Pendências seguem para a segunda.'
+      : pending > 0
+        ? `${pending} pendente(s) projetada(s) para este dia.`
+        : 'Sem pendências projetadas para este dia.';
 
-    return `<article class="calendar-card ${day.isToday ? 'today' : ''}">
-      <div class="calendar-head">
-        <div>
-          <div class="calendar-label">${label}</div>
-          <h3>${esc(wkLabel(day.dateKey))}</h3>
-          <div class="calendar-date">${fmtDate(day.dateKey)}</div>
+    return `
+      <article class="${stateClass}">
+        <div class="calendar-card-top">
+          <span class="calendar-kicker">${kicker}</span>
         </div>
-        <span class="mini-chip">${day.sundayModeActive ? 'DOM' : `${discs.length} DISC`}</span>
-      </div>
-      <div class="calendar-list">${chips}</div>
-      <p class="calendar-note">${esc(note)}</p>
-    </article>`;
+
+        <div class="calendar-main">
+          <h3 class="calendar-day">${esc(day.weekdayLabel)}</h3>
+          <div class="calendar-date">${esc(day.dateLabel)}</div>
+        </div>
+
+        <div class="calendar-load">${loadLabel}</div>
+
+        ${discList}
+
+        <div class="calendar-foot">
+          <p class="calendar-note">${esc(note)}</p>
+        </div>
+      </article>
+    `;
   }).join('');
 }
 
