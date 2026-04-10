@@ -79,8 +79,8 @@ body{
 
 .system-line{
   color:#cf4d4d;
-  font:800 13px var(--font-mono);
-  letter-spacing:.16em;
+  font:900 15px var(--font-mono);
+  letter-spacing:.17em;
   text-transform:uppercase;
 }
 
