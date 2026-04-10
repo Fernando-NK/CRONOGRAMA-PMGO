@@ -78,9 +78,9 @@ body{
 }
 
 .system-line{
-  color:#a8b2c2;
-  font:700 12px var(--font-mono);
-  letter-spacing:.12em;
+  color:#cf4d4d;
+  font:800 13px var(--font-mono);
+  letter-spacing:.16em;
   text-transform:uppercase;
 }
 
