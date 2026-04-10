@@ -84,6 +84,25 @@ body{
   text-transform:uppercase;
 }
 
+.system-icon{
+  display:inline-block;
+  margin-right:6px;
+  color:#cf4d4d;
+  animation:systemPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes systemPulse{
+  0%{
+    opacity:1;
+  }
+  50%{
+    opacity:.32;
+  }
+  100%{
+    opacity:1;
+  }
+  
+}
 .vh-signature{
   margin-top:6px;
   color:#94a0af;
