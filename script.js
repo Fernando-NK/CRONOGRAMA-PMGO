@@ -163,7 +163,7 @@ function simulateFuturePackage(dateKey, prevDay, cursor, carryBuffer) {
   };
 }
 
-function buildCalendarPreview(days = 7) {
+function buildCalendarPreview(days = 9) {
   const out = [];
   let prevDay = deepClone(appState.today);
   let cursor = appState.cursor;
