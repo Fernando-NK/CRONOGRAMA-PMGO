@@ -956,8 +956,8 @@ function renderCalendar() {
         </div>
 
         <div class="calendar-main">
-          <h3 class="calendar-day">${esc(wkLabel(day.dateKey))}</h3>
-          <div class="calendar-date">${esc(fmtDate(day.dateKey))}</div>
+         <h3 class="calendar-day">${esc(wkLabel(day.dateKey))}</h3>
+         <div class="calendar-date">${esc(fmtDate(day.dateKey))}</div>
         </div>
 
         <div class="calendar-load">${loadLabel}</div>
