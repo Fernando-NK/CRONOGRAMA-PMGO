@@ -75,16 +75,45 @@
       </div>
 
       <div class="view is-hidden" id="view-calendar">
-        <div class="calendar-wrap">
-          <div class="calendar-headline">
-            <div>
-              <h2 class="calendar-title">Calendário Operacional</h2>
-              <p class="calendar-sub">Projeção curta da fila com redistribuição automática de pendências.</p>
-            </div>
-          </div>
-          <div class="calendar-grid" id="calendar-grid"></div>
-        </div>
+  <div class="calendar-wrap">
+    <div class="calendar-headline">
+      <div>
+        <h2 class="calendar-title">Calendário Operacional</h2>
+        <p class="calendar-sub">Projeção curta da fila com redistribuição automática de pendências.</p>
       </div>
+    </div>
+
+    <div class="calendar-grid" id="calendar-grid">
+      <!--
+        Os cards serão renderizados pelo script.js.
+        Estrutura esperada de cada card:
+
+        <article class="calendar-card today|tomorrow|projected|sunday">
+          <div class="calendar-card-top">
+            <span class="calendar-kicker">HOJE</span>
+          </div>
+
+          <div class="calendar-main">
+            <h3 class="calendar-day">Quinta</h3>
+            <div class="calendar-date">09/04/2026</div>
+          </div>
+
+          <div class="calendar-load">3 DISC</div>
+
+          <div class="calendar-disc-list">
+            <div class="calendar-disc">Direito Penal</div>
+            <div class="calendar-disc">Direito Administrativo</div>
+            <div class="calendar-disc">Direito Constitucional</div>
+          </div>
+
+          <div class="calendar-foot">
+            <p class="calendar-note">3 pendente(s) projetada(s) para este dia.</p>
+          </div>
+        </article>
+      -->
+    </div>
+  </div>
+</div>
     </section>
 
     <div class="footer-note">
