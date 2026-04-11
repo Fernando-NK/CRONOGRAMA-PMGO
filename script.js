@@ -903,8 +903,9 @@ function renderFocus() {
     if (queueNote) {
       queueNote.classList.remove('is-hidden');
       queueNote.textContent = isSun
-        ? 'A fila só avança por conclusão manual. Domingo preserva a teoria; as pendências seguem para a segunda.'
-        : 'A fila só avança por conclusão manual.';
+        queueNote.textContent = isSun
+         ? 'A conclusão manual é o único motor real de avanço da fila. Domingo preserva a teoria; as pendências seguem para a segunda.'
+         : 'A conclusão manual é o único motor real de avanço da fila.';
     }
   }
 
