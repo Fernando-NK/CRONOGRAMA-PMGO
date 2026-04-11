@@ -854,55 +854,65 @@ function renderStats() {
 
 function renderFocus() {
   const grid = document.getElementById('today-pkg');
+  const queueNote = document.getElementById('focus-queue-note');
   const isSun = appState.today.sundayModeActive;
-  const directiveBase = 'A fila só avança por conclusão manual.';
 
   if (!appState.today.packageItems.length) {
     grid.innerHTML = `<div class="empty-box">Nenhuma disciplina projetada para hoje.</div>`;
-    document.getElementById('sys-directive').textContent = `${directiveBase} Nenhuma disciplina foi projetada para hoje.`;
-    return;
+
+    if (queueNote) {
+      queueNote.textContent = '';
+      queueNote.classList.add('is-hidden');
+    }
+  } else {
+    grid.innerHTML = appState.today.packageItems.map((item, i) => {
+      const cls = [
+        'package-item',
+        item.completed ? 'completed' : '',
+        !item.completed && i === 0 ? 'current' : '',
+        item.type === 'special' ? 'special' : '',
+      ].filter(Boolean).join(' ');
+
+      const tags = [];
+      if (item.type === 'discipline') tags.push(`Ciclo ${item.macroCycle}`);
+      if (item.occLabel) tags.push(`Ocorrência ${item.occLabel}`);
+      if (item.carryOver) tags.push('Herdada');
+      if (item.completed) tags.push('Concluída');
+
+      const subtext = item.completed
+        ? `Concluída em ${fmtDateTime(item.completedAt)}.`
+        : '';
+
+      return `<div class="${cls}">
+        <div class="package-main">
+          <div class="package-eyebrow">${item.type === 'special' ? 'DIA ESPECIAL' : 'DISCIPLINA'}</div>
+          <h3 class="package-title">${esc(item.name)}</h3>
+          ${subtext ? `<p class="package-sub">${esc(subtext)}</p>` : ''}
+          <div class="package-tags">${tags.map(t => `<span class="mini-chip">${esc(t)}</span>`).join('')}</div>
+        </div>
+        ${item.type === 'discipline' ? `
+          <div class="package-actions">
+            <button class="btn-inline done" data-action="complete" data-item-id="${item.uid}" ${item.completed ? 'disabled' : ''}>concluir</button>
+            <button class="btn-inline undo" data-action="undo" data-item-id="${item.uid}" ${!item.completed ? 'disabled' : ''}>desfazer</button>
+          </div>` : ''}
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('[data-action]').forEach(b => b.addEventListener('click', handlePkgAction));
+
+    if (queueNote) {
+      queueNote.classList.remove('is-hidden');
+      queueNote.textContent = isSun
+        ? 'A fila só avança por conclusão manual. Domingo preserva a teoria; as pendências seguem para a segunda.'
+        : 'A fila só avança por conclusão manual.';
+    }
   }
 
-  grid.innerHTML = appState.today.packageItems.map((item, i) => {
-    const cls = [
-      'package-item',
-      item.completed ? 'completed' : '',
-      !item.completed && i === 0 ? 'current' : '',
-      item.type === 'special' ? 'special' : '',
-    ].filter(Boolean).join(' ');
-
-    const tags = [];
-    if (item.type === 'discipline') tags.push(`Ciclo ${item.macroCycle}`);
-    if (item.occLabel) tags.push(`Ocorrência ${item.occLabel}`);
-    if (item.carryOver) tags.push('Herdada');
-    if (item.completed) tags.push('Concluída');
-
-    const subtext = item.completed
-      ? `Concluída em ${fmtDateTime(item.completedAt)}.`
-      : '';
-
-    return `<div class="${cls}">
-      <div class="package-main">
-        <div class="package-eyebrow">${item.type === 'special' ? 'DIA ESPECIAL' : 'DISCIPLINA'}</div>
-        <h3 class="package-title">${esc(item.name)}</h3>
-        ${subtext ? `<p class="package-sub">${esc(subtext)}</p>` : ''}
-        <div class="package-tags">${tags.map(t => `<span class="mini-chip">${esc(t)}</span>`).join('')}</div>
-      </div>
-      ${item.type === 'discipline' ? `
-        <div class="package-actions">
-          <button class="btn-inline done" data-action="complete" data-item-id="${item.uid}" ${item.completed ? 'disabled' : ''}>concluir</button>
-          <button class="btn-inline undo" data-action="undo" data-item-id="${item.uid}" ${!item.completed ? 'disabled' : ''}>desfazer</button>
-        </div>` : ''}
-    </div>`;
-  }).join('');
-
-  grid.querySelectorAll('[data-action]').forEach(b => b.addEventListener('click', handlePkgAction));
-
   document.getElementById('sys-directive').textContent = isSun
-    ? `${directiveBase} Domingo preserva a teoria e retoma na segunda a partir das pendências acumuladas.`
+    ? 'Domingo preserva a teoria. A fila congela e retoma na segunda a partir das pendências acumuladas.'
     : pendingN() === 0
-      ? `${directiveBase} Rotação limpa. Se o dia virar agora, o sistema registrará fechamento visual sem transbordo.`
-      : `${directiveBase} ${pendingN()} disciplina(s) ainda transbordam para o próximo dia se você encerrar agora.`;
+      ? 'Rotação limpa. Se o dia virar agora, o sistema registrará fechamento visual sem transbordo.'
+      : `${pendingN()} disciplina(s) ainda transbordam para o próximo dia se você encerrar agora.`;
 }
 
 function renderCalendar() {
