@@ -818,13 +818,25 @@ function render() {
 }
 
 function renderHeader() {
-  document.querySelector('.vh-signature').textContent = appState.config.systemName;
+  const sigText = document.querySelector('.sig-text');
+
+  if (sigText) {
+    sigText.textContent = appState.config.systemName;
+  } else {
+    const sig = document.querySelector('.vh-signature');
+    if (sig) sig.textContent = appState.config.systemName;
+  }
+
   document.getElementById('hero-weekday').textContent = wkLabel(appState.today.dateKey);
   document.getElementById('hero-date').textContent = fmtDate(appState.today.dateKey);
-  document.getElementById('hero-badge').textContent = appState.today.sundayModeActive ? 'DOMINGO ESPECIAL' : 'ROTAÇÃO OPERACIONAL';
+  document.getElementById('hero-badge').textContent = appState.today.sundayModeActive
+    ? 'DOMINGO ESPECIAL'
+    : 'ROTAÇÃO OPERACIONAL';
+
   document.getElementById('meta-slots').textContent = appState.today.sundayModeActive
     ? `${pendingN()} PENDÊNCIAS PRESERVADAS`
     : `${totalDiscN()} SLOT${totalDiscN() === 1 ? '' : 'S'}`;
+
   document.getElementById('meta-pending').textContent = `${pendingN()} PENDENTE${pendingN() === 1 ? '' : 'S'}`;
   document.getElementById('meta-rotations').textContent = `${appState.rotations} ROTAÇÃO${appState.rotations === 1 ? '' : 'ES'}`;
 }
