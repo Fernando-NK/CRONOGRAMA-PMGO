@@ -79,7 +79,8 @@ body{
 
 .system-line{
   color:#cf4d4d;
-  font:900 15px var(--font-mono);
+  font-family:var(--font-mono);
+  font-weight:900;
   text-transform:uppercase;
 }
 
@@ -87,11 +88,13 @@ body{
   display:inline-block;
   margin-right:2px;
   color:#cf4d4d;
+  font-size:15px;
   letter-spacing:0;
   animation:systemPulse 2.4s ease-in-out infinite;
 }
 
 .system-text{
+  font-size:17px;
   letter-spacing:.17em;
 }
 
