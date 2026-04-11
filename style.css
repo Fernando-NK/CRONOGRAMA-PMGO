@@ -90,14 +90,14 @@ body{
   display:inline-block;
   margin-right:7px;
   color:#cf4d4d;
-  font-size:15px;
+  font-size:14px;
   line-height:1;
   letter-spacing:0;
   animation:systemPulse 2.4s ease-in-out infinite;
 }
 
 .system-text{
-  font-size:17px;
+  font-size:18px;
   letter-spacing:.12em;
   line-height:1;
 }
@@ -110,11 +110,28 @@ body{
   
 }
 .vh-signature{
-  margin-top:6px;
-  color:#94a0af;
+  margin-top:12px;
+  margin-left:4px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#aab3bf;
+  opacity:.92;
+}
+
+.sig-mark{
+  color:#6f7885;
   font-size:14px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
+  line-height:1;
+}
+
+.sig-text{
+  font-family:Inter, system-ui, sans-serif;
+  font-size:14px;
+  font-style:italic;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:none;
 }
 
 .hero-weekday{
