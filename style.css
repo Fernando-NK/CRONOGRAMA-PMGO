@@ -80,27 +80,26 @@ body{
 .system-line{
   color:#cf4d4d;
   font:900 15px var(--font-mono);
-  letter-spacing:.17em;
   text-transform:uppercase;
 }
 
 .system-icon{
   display:inline-block;
-  margin-right:6px;
+  margin-right:2px;
   color:#cf4d4d;
+  letter-spacing:0;
   animation:systemPulse 2.4s ease-in-out infinite;
 }
 
+.system-text{
+  letter-spacing:.17em;
+}
+
 @keyframes systemPulse{
-  0%{
-    opacity:1;
-  }
-  50%{
-    opacity:.32;
-  }
-  100%{
-    opacity:1;
-  }
+  0%{ opacity:1; }
+  50%{ opacity:.32; }
+  100%{ opacity:1; }
+}
   
 }
 .vh-signature{
