@@ -82,20 +82,24 @@ body{
   font-family:var(--font-mono);
   font-weight:900;
   text-transform:uppercase;
+  display:flex;
+  align-items:center;
 }
 
 .system-icon{
   display:inline-block;
-  margin-right:2px;
+  margin-right:5px;
   color:#cf4d4d;
   font-size:15px;
+  line-height:1;
   letter-spacing:0;
   animation:systemPulse 2.4s ease-in-out infinite;
 }
 
 .system-text{
-  font-size:17px;
-  letter-spacing:.17em;
+  font-size:19px;
+  letter-spacing:.14em;
+  line-height:1;
 }
 
 @keyframes systemPulse{
