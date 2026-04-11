@@ -3,7 +3,7 @@
 /* ═══════════════════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════════════════ */
-const STORAGE_KEY  = 'pmgo_vh_v8';
+const STORAGE_KEY  = 'pmgo_vh_v9';
 const LEGACY_KEYS  = ['pmgo_widget_vh_v7','pmgo_widget_vh_v6','pmgo_widget_vh_v5','pmgo_widget_vh_v4','pmgo_widget_vh_v3','pmgo_ciclos_v2'];
 const WEEKDAY_KEYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 const WEEKDAY_LABELS = { sunday:'Domingo', monday:'Segunda', tuesday:'Terça', wednesday:'Quarta', thursday:'Quinta', friday:'Sexta', saturday:'Sábado' };
