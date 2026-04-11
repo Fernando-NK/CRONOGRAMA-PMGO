@@ -88,7 +88,7 @@ body{
 
 .system-icon{
   display:inline-block;
-  margin-right:10px;
+  margin-right:7px;
   color:#cf4d4d;
   font-size:15px;
   line-height:1;
@@ -97,7 +97,7 @@ body{
 }
 
 .system-text{
-  font-size:19px;
+  font-size:22px;
   letter-spacing:.14em;
   line-height:1;
 }
