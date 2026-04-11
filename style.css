@@ -369,6 +369,21 @@ button{
   gap:10px;
 }
 
+.focus-queue-note{
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+}
+
+.focus-queue-note.is-hidden{
+  display:none;
+}
+
 .package-item{
   display:grid;
   grid-template-columns:1fr auto;
