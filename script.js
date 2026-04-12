@@ -830,7 +830,7 @@ function renderHeader() {
   document.getElementById('hero-weekday').textContent = wkLabel(appState.today.dateKey);
   document.getElementById('hero-date').textContent = fmtDate(appState.today.dateKey);
   document.getElementById('hero-badge').textContent = appState.today.sundayModeActive
-    ? 'DOMINGO ESPECIAL'
+    ? 'FASE DE CONSOLIDAÇÃO'
     : 'ROTAÇÃO OPERACIONAL';
 
   document.getElementById('meta-slots').textContent = appState.today.sundayModeActive
@@ -949,7 +949,7 @@ function renderCalendar() {
     const discList = day.sundayModeActive
       ? `
         <div class="calendar-disc-list">
-          <div class="calendar-disc">Domingo especial</div>
+          <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
           <div class="calendar-disc">Teoria congelada</div>
           <div class="calendar-disc">Sem nova carga teórica</div>
         </div>
