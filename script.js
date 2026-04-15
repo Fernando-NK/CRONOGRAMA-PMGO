@@ -1257,23 +1257,9 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   for (let index = 1; index < days; index += 1) {
     const targetDate = addDays(baseDate, index);
 
-    let carryItems = [];
-
-    // Só o primeiro dia futuro herda as pendências reais de HOJE.
-    if (index === 1) {
-      carryItems = cloneItemsForDate(
-        todayDiscs(runtime.today).filter((item) => !item.completed),
-        targetDate,
-        {
-          carryOver: true,
-          keepOriginalDate: true,
-          buildReason: 'carry',
-          occLabel: 'Herdada',
-        }
-      );
-    }
-
-    const next = composePreviewDay(targetDate, previousProjectedDay, runtime, carryItems);
+    // No preview, amanhã NÃO herda automaticamente as pendências de hoje.
+    // Herdança só existe quando o motor real virar o dia.
+    const next = composePreviewDay(targetDate, previousProjectedDay, runtime, []);
 
     preview.push({ ...deepClone(next), isToday: false });
     previousProjectedDay = deepClone(next);
