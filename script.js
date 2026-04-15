@@ -1,6 +1,6 @@
 'use strict';
 
-(() => {
+(() => { 
   /* ═══════════════════════════════════════════════════════
      PMGO WIDGET — ENGINE V11
      Base estrutural A/B/C + domingo D (consolidação)
@@ -1211,25 +1211,78 @@
       reconcileToday();
     }
   }
+function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
+  const weekdayKey = wkFromDateKey(dateKey);
 
-  function buildCalendarPreview(days = 9) {
-    const runtime = normalizeState(deepClone(appState));
-    const preview = [];
-
-    let current = deepClone(runtime.today);
-    preview.push({ ...deepClone(current), isToday: true });
-
-    for (let index = 1; index < days; index += 1) {
-      const targetDate = addDays(runtime.today.dateKey, index);
-      const next = composeNextDay(targetDate, current, runtime);
-      runtime.today = deepClone(next);
-      current = deepClone(next);
-      preview.push({ ...deepClone(next), isToday: false });
-    }
-
-    return preview;
+  // Domingo continua sendo fase de consolidação.
+  // Se houver pendência herdada do primeiro dia projetado, ela fica preservada no buffer.
+  if (isSunday(weekdayKey)) {
+    runtime.carryBuffer = (carryItems || []).map((item) => ({ ...deepClone(item) }));
+    return buildSundayDay(dateKey, runtime);
   }
 
+  let inherited = [];
+
+  // Se o dia anterior projetado foi domingo, reaproveita o carryBuffer.
+  if (previousDay?.sundayModeActive) {
+    inherited = cloneItemsForDate(
+      (runtime.carryBuffer || []).filter((item) => item.type === 'discipline'),
+      dateKey,
+      {
+        carryOver: true,
+        keepOriginalDate: true,
+        buildReason: 'carry',
+        occLabel: 'Herdada',
+      }
+    );
+    runtime.carryBuffer = [];
+  } else {
+    inherited = Array.isArray(carryItems) ? carryItems : [];
+  }
+
+  // Aqui entra a projeção útil:
+  // pendência herdada entra primeiro, mas o sistema continua rodando.
+  return buildActiveDay(dateKey, inherited, runtime);
+}
+  
+  function buildCalendarPreview(days = 9) {
+  const runtime = normalizeState(deepClone(appState));
+  const preview = [];
+  const baseDate = runtime.today.dateKey;
+
+  preview.push({ ...deepClone(runtime.today), isToday: true });
+
+  let previousProjectedDay = deepClone(runtime.today);
+
+  for (let index = 1; index < days; index += 1) {
+    const targetDate = addDays(baseDate, index);
+
+    let carryItems = [];
+
+    // Só o primeiro dia futuro herda as pendências reais de HOJE.
+    if (index === 1) {
+      carryItems = cloneItemsForDate(
+        todayDiscs(runtime.today).filter((item) => !item.completed),
+        targetDate,
+        {
+          carryOver: true,
+          keepOriginalDate: true,
+          buildReason: 'carry',
+          occLabel: 'Herdada',
+        }
+      );
+    }
+
+    const next = composePreviewDay(targetDate, previousProjectedDay, runtime, carryItems);
+
+    preview.push({ ...deepClone(next), isToday: false });
+    previousProjectedDay = deepClone(next);
+    runtime.today = deepClone(next);
+  }
+
+  return preview;
+}
+  
   /* ═══════════════════════════════════════════════════════
      ACTIONS
   ═══════════════════════════════════════════════════════ */
