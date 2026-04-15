@@ -3,27 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta
+    name="description"
+    content="Widget operacional de ciclos PMGO — Virtus et Honor. Rotação A/B/C, domingo de consolidação, pendências herdadas e calendário operacional."
+  />
   <title>PMGO — Virtus et Honor</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
- <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <div class="app">
-
     <section class="card hero shell">
       <div class="system-line">
-  <span class="system-icon">▶</span>
-  <span class="system-text">SISTEMA DE CICLOS — PMGO</span>
-</div>
-      <div class="vh-signature"><span class="sig-mark">—</span><span class="sig-text">Virtus et Honor</span></div>
+        <span class="system-icon">▶</span>
+        <span class="system-text">SISTEMA DE CICLOS — PMGO</span>
+      </div>
+
+      <div class="vh-signature">
+        <span class="sig-mark">—</span>
+        <span class="sig-text">Virtus et Honor</span>
+      </div>
+
       <h1 class="hero-weekday" id="hero-weekday">—</h1>
       <div class="hero-date" id="hero-date">—</div>
+
       <div class="hero-bottom">
         <span class="badge" id="hero-badge">ROTAÇÃO OPERACIONAL</span>
+
         <div class="hero-meta">
           <span class="meta-pill" id="meta-slots">—</span>
           <span class="meta-pill" id="meta-pending">—</span>
@@ -35,15 +49,27 @@
     <section class="card">
       <div class="toolbar">
         <div class="tabs">
-          <button class="tab is-active" id="tab-operational" type="button">Modo Operacional</button>
-          <button class="tab" id="tab-calendar" type="button">Calendário Operacional</button>
+          <button class="tab is-active" id="tab-operational" type="button">
+            Modo Operacional
+          </button>
+          <button class="tab" id="tab-calendar" type="button">
+            Calendário Operacional
+          </button>
         </div>
 
         <div class="quick-actions">
-          <button class="btn-primary" id="btn-rollover" type="button">Atualizar dia</button>
-          <button class="btn-ghost" id="btn-history" type="button">Histórico</button>
-          <button class="btn-ghost" id="btn-settings" type="button">Sistema</button>
-          <button class="btn-danger" id="btn-reset" type="button">Resetar ciclo</button>
+          <button class="btn-primary" id="btn-rollover" type="button">
+            Atualizar dia
+          </button>
+          <button class="btn-ghost" id="btn-history" type="button">
+            Histórico
+          </button>
+          <button class="btn-ghost" id="btn-settings" type="button">
+            Sistema
+          </button>
+          <button class="btn-danger" id="btn-reset" type="button">
+            Resetar ciclo
+          </button>
         </div>
       </div>
 
@@ -59,6 +85,7 @@
               <span class="progress-title">Progresso da rotação</span>
               <span class="progress-pct" id="pkg-pct">0 / 0</span>
             </div>
+
             <div class="progress-bar">
               <div class="progress-fill" id="pkg-fill"></div>
             </div>
@@ -73,98 +100,89 @@
           </div>
 
           <div class="focus-footer">
-            <button class="btn-ghost" id="btn-open-calendar" type="button">Abrir calendário</button>
+            <button class="btn-ghost" id="btn-open-calendar" type="button">
+              Abrir calendário
+            </button>
           </div>
         </article>
       </div>
 
       <div class="view is-hidden" id="view-calendar">
-  <div class="calendar-wrap">
-    <div class="calendar-headline">
-      <div>
-        <h2 class="calendar-title">Calendário Operacional</h2>
-        <p class="calendar-sub">Projeção curta da fila com redistribuição automática de pendências.</p>
+        <div class="calendar-wrap">
+          <div class="calendar-headline">
+            <div>
+              <h2 class="calendar-title">Calendário Operacional</h2>
+              <p class="calendar-sub">
+                Projeção curta da fila com continuidade estrutural, preservação de pendências e domingo de consolidação.
+              </p>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Cards renderizados pelo script.js -->
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="calendar-grid" id="calendar-grid">
-      <!--
-        Os cards serão renderizados pelo script.js.
-        Estrutura esperada de cada card:
-
-        <article class="calendar-card today|tomorrow|projected|sunday">
-          <div class="calendar-card-top">
-            <span class="calendar-kicker">HOJE</span>
-          </div>
-
-          <div class="calendar-main">
-            <h3 class="calendar-day">Quinta</h3>
-            <div class="calendar-date">09/04/2026</div>
-          </div>
-
-          <div class="calendar-load">3 DISC</div>
-
-          <div class="calendar-disc-list">
-            <div class="calendar-disc">Direito Penal</div>
-            <div class="calendar-disc">Direito Administrativo</div>
-            <div class="calendar-disc">Direito Constitucional</div>
-          </div>
-
-          <div class="calendar-foot">
-            <p class="calendar-note">3 pendente(s) projetada(s) para este dia.</p>
-          </div>
-        </article>
-      -->
-    </div>
-  </div>
-</div>
     </section>
 
     <div class="footer-note">
       Persistência via <strong>localStorage</strong> com fallback para URL hash em ambientes restritos.
-      A interface principal foi reduzida para execução. Informações secundárias permanecem internas ou em modais.
+      Estrutura compatível com <strong>data.json</strong> e com o motor operacional do <strong>script.js</strong>.
     </div>
   </div>
 
   <!-- ── MODAL: HISTÓRICO ── -->
   <div class="modal" id="history-modal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="history-title">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">Histórico operacional</h3>
-          <p class="modal-sub">Disciplina · data · posição na fila · ciclo macro · contexto do dia.</p>
+          <h3 class="modal-title" id="history-title">Histórico operacional</h3>
+          <p class="modal-sub">
+            Registro real de conclusão, contexto da rotação e fechamento visual dos dias.
+          </p>
         </div>
-        <button class="modal-close" type="button" data-close="history-modal">×</button>
+        <button class="modal-close" type="button" data-close="history-modal" aria-label="Fechar histórico">
+          ×
+        </button>
       </div>
+
       <div class="modal-body">
         <div class="history-list" id="history-list"></div>
       </div>
+
       <div class="modal-footer">
-        <button class="btn-ghost" type="button" data-close="history-modal">Fechar</button>
+        <button class="btn-ghost" type="button" data-close="history-modal">
+          Fechar
+        </button>
       </div>
     </div>
   </div>
 
   <!-- ── MODAL: CONFIGURAÇÕES ── -->
   <div class="modal" id="settings-modal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">Sistema</h3>
-          <p class="modal-sub">Disciplinas, pesos, ciclos e capacidade diária — sem editar o HTML.</p>
+          <h3 class="modal-title" id="settings-title">Sistema</h3>
+          <p class="modal-sub">
+            Disciplinas, pesos, ciclos e capacidade diária — sem editar o HTML.
+          </p>
         </div>
-        <button class="modal-close" type="button" data-close="settings-modal">×</button>
+        <button class="modal-close" type="button" data-close="settings-modal" aria-label="Fechar sistema">
+          ×
+        </button>
       </div>
 
       <div class="modal-body">
         <div class="settings-grid">
-
           <div class="setting-card">
             <div class="setting-title">Identidade</div>
+
             <div class="form-col">
               <label for="cfg-name">Assinatura</label>
               <input class="field" id="cfg-name" type="text" maxlength="40" />
             </div>
+
             <div class="form-col">
               <label for="cfg-subtitle">Subtítulo interno</label>
               <input class="field" id="cfg-subtitle" type="text" maxlength="180" />
@@ -173,12 +191,16 @@
 
           <div class="setting-card">
             <div class="setting-title">Capacidade diária</div>
-            <div class="setting-note">Teto padrão de disciplinas por dia. Domingo mantém tratamento especial.</div>
-            <div class="inline-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="setting-note">
+              Teto padrão de disciplinas por dia. Domingo permanece como fase especial de consolidação.
+            </div>
+
+            <div class="inline-grid" style="grid-template-columns: 1fr 1fr;">
               <div class="form-col">
                 <label for="cfg-slots">Slots padrão</label>
                 <input class="field" id="cfg-slots" type="number" min="1" max="10" step="1" />
               </div>
+
               <div class="form-col">
                 <label for="cfg-sunday">Modo domingo</label>
                 <select class="select" id="cfg-sunday">
@@ -191,8 +213,9 @@
             <div class="toggle-row">
               <div class="toggle-label">
                 <strong>Confirmar antes de resetar</strong>
-                <span>Evita apagar tudo por clique acidental.</span>
+                <span>Evita apagar histórico e fila por clique acidental.</span>
               </div>
+
               <label class="switch">
                 <input id="cfg-confirm-reset" type="checkbox" />
                 <span class="slider"></span>
@@ -202,66 +225,112 @@
 
           <div class="setting-card">
             <div class="setting-title">Teto por dia da semana</div>
-            <div class="setting-note">Zero ou vazio = usa o teto padrão. Domingo ignora este campo.</div>
+            <div class="setting-note">
+              Zero ou vazio = usa o teto padrão. Domingo ignora este campo.
+            </div>
             <div class="disc-editor-list" id="wday-slots"></div>
           </div>
 
           <div class="setting-card">
             <div class="setting-title">Adicionar disciplina</div>
-            <div class="setting-note">Peso maior = maior recorrência distribuída na rotação. Nunca repetição em bloco.</div>
-            <div class="inline-grid" style="grid-template-columns:1.7fr .6fr .75fr auto;">
+            <div class="setting-note">
+              Peso maior = maior prioridade relativa dentro do motor. Não gera repetição automática.
+            </div>
+
+            <div class="inline-grid" style="grid-template-columns: 1.7fr .6fr .75fr auto;">
               <div class="form-col">
                 <label for="new-disc-name">Nome</label>
-                <input class="field" id="new-disc-name" type="text" maxlength="60" placeholder="Ex.: Direito Penal" />
+                <input
+                  class="field"
+                  id="new-disc-name"
+                  type="text"
+                  maxlength="60"
+                  placeholder="Ex.: Direito Penal"
+                />
               </div>
+
               <div class="form-col">
                 <label for="new-disc-weight">Peso</label>
-                <input class="field" id="new-disc-weight" type="number" min="1" max="10" value="1" />
+                <input
+                  class="field"
+                  id="new-disc-weight"
+                  type="number"
+                  min="1"
+                  max="11"
+                  value="1"
+                />
               </div>
+
               <div class="form-col">
                 <label for="new-disc-color">Cor</label>
                 <select class="select" id="new-disc-color"></select>
               </div>
-              <button class="btn-primary" id="btn-add-disc" type="button" style="height:42px;padding:0 14px;">+</button>
+
+              <button
+                class="btn-primary"
+                id="btn-add-disc"
+                type="button"
+                style="height: 42px; padding: 0 14px;"
+                aria-label="Adicionar disciplina"
+              >
+                +
+              </button>
             </div>
           </div>
 
           <div class="setting-card">
             <div class="setting-title">Disciplinas da fila</div>
-            <div class="setting-note">Edições recalculam a fila preservando pendências atuais sempre que possível.</div>
+            <div class="setting-note">
+              Edições recalculam a fila preservando pendências atuais sempre que possível.
+            </div>
             <div class="disc-editor-list" id="disc-editor"></div>
           </div>
-
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-ghost" type="button" data-close="settings-modal">Cancelar</button>
-        <button class="btn-primary" type="button" id="btn-save-settings">Salvar</button>
+        <button class="btn-ghost" type="button" data-close="settings-modal">
+          Cancelar
+        </button>
+        <button class="btn-primary" type="button" id="btn-save-settings">
+          Salvar
+        </button>
       </div>
     </div>
   </div>
 
   <!-- ── MODAL: RESET ── -->
   <div class="modal" id="reset-modal" aria-hidden="true">
-    <div class="modal-card sm" role="dialog" aria-modal="true">
+    <div class="modal-card sm" role="dialog" aria-modal="true" aria-labelledby="reset-title">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">Resetar ciclo</h3>
-          <p class="modal-sub">Apaga histórico, fila, rotação atual e configurações.</p>
+          <h3 class="modal-title" id="reset-title">Resetar ciclo</h3>
+          <p class="modal-sub">
+            Apaga histórico, fila, rotação atual e configurações.
+          </p>
         </div>
-        <button class="modal-close" type="button" data-close="reset-modal">×</button>
+        <button class="modal-close" type="button" data-close="reset-modal" aria-label="Fechar reset">
+          ×
+        </button>
       </div>
+
       <div class="modal-body">
-        <div class="empty-box">Esta ação é irreversível. Confirme apenas se quiser reiniciar completamente do zero.</div>
+        <div class="empty-box">
+          Esta ação é irreversível. Confirme apenas se quiser reiniciar completamente do zero.
+        </div>
       </div>
+
       <div class="modal-footer">
-        <button class="btn-ghost" type="button" data-close="reset-modal">Cancelar</button>
-        <button class="btn-danger" type="button" id="btn-reset-confirm">Resetar agora</button>
+        <button class="btn-ghost" type="button" data-close="reset-modal">
+          Cancelar
+        </button>
+        <button class="btn-danger" type="button" id="btn-reset-confirm">
+          Resetar agora
+        </button>
       </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=3" defer></script>
 </body>
 </html>
