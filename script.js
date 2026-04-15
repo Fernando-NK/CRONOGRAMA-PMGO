@@ -1731,10 +1731,18 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
           `;
 
       const note = day.sundayModeActive
-        ? 'Sugestão de consolidação. Não é imposição automática.'
-        : pending > 0
-          ? `${pending} pendência(s) projetada(s) para este dia.`
-          : 'Sem pendências projetadas para este dia.';
+  ? 'Sugestão de consolidação. Não é imposição automática.'
+  : day.isToday
+    ? (
+        pending > 0
+          ? `${pending} pendência(s) real(is) em aberto hoje.`
+          : 'Sem pendências reais em aberto hoje.'
+      )
+    : (
+        disciplines.length > 0
+          ? `${disciplines.length} disciplina(s) prevista(s) para este dia.`
+          : 'Sem disciplinas previstas para este dia.'
+      );
 
       return `
         <article class="${stateClass}">
