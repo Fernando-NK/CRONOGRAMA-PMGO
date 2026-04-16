@@ -783,7 +783,75 @@
 
     return activeBuilds.length ? activeBuilds[activeBuilds.length - 1] : null;
   }
+  
+   function recentCompletionCount(discKey, dateKey, runtime = appState, withinDays = 12) {
+  return (runtime.history || []).filter((item) => (
+    item.type === 'discipline'
+    && !item.skipped
+    && item.discKey === discKey
+    && daysBetween(item.dateKey, dateKey) <= withinDays
+  )).length;
+}
 
+function cycleLastSeen(cycleKey, runtime = appState) {
+  return runtime.cycleState?.memory?.[cycleKey]?.lastScheduledDate || null;
+}
+
+function canDisciplineEnterFromCycle(discipline, dateKey, runtime = appState) {
+  const neglect = calcNeglectFactor(discipline, dateKey, runtime);
+
+  if (discipline.key === 'dpm') {
+    const dpCount5 = recentCompletionCount('dp', dateKey, runtime, 5);
+    const dpCount12 = recentCompletionCount('dp', dateKey, runtime, 12);
+
+    return dpCount5 >= 2 || dpCount12 >= 4 || neglect >= 1.75;
+  }
+
+  if (discipline.key === 'dppm') {
+    const dppCount5 = recentCompletionCount('dpp', dateKey, runtime, 5);
+    const dppCount12 = recentCompletionCount('dpp', dateKey, runtime, 12);
+
+    return dppCount5 >= 2 || dppCount12 >= 4 || neglect >= 1.75;
+  }
+
+  if (discipline.key === 'rg') {
+    const rgNeglect = neglect >= 1.95;
+    const longGap = !hasRecentCompletion('rg', dateKey, runtime, 21);
+    return rgNeglect || longGap;
+  }
+
+  return true;
+}
+
+function countUnlockedCDisciplines(dateKey, runtime = appState) {
+  return runtime.disciplines
+    .filter((discipline) => discipline.macroCycle === 'C')
+    .filter((discipline) => canDisciplineEnterFromCycle(discipline, dateKey, runtime))
+    .length;
+}
+
+function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
+  if (count <= 0) return [];
+
+  const excluded = new Set(excludeKeys.filter(Boolean));
+  const previousActiveBuild = getPreviousActiveBuild(dateKey, runtime);
+
+  return runtime.disciplines
+    .filter((discipline) => ['A', 'B'].includes(discipline.macroCycle))
+    .filter((discipline) => !excluded.has(discipline.key))
+    .filter((discipline) => !previousActiveBuild?.disciplineKeys?.includes(discipline.key))
+    .map((discipline) => ({
+      discipline,
+      score: calcDisciplinePriority(discipline, dateKey, runtime),
+    }))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.discipline.name.localeCompare(b.discipline.name, 'pt-BR');
+    })
+    .slice(0, count)
+    .map((entry) => entry.discipline);
+}
+  
   function countSkippedDisc(discKey, runtime = appState) {
     return (runtime.history || []).filter((item) => item.type === 'discipline' && item.skipped && item.discKey === discKey).length;
   }
@@ -855,38 +923,47 @@
   }
 
   function cyclePriorityScore(cycleKey, dateKey, runtime) {
-    if (!CYCLE_META[cycleKey] || cycleKey === 'D') return -999;
+  if (!CYCLE_META[cycleKey] || cycleKey === 'D') return -999;
 
-    const meta = runtime.cycleState?.memory?.[cycleKey] || { lastScheduledDate: null, skipCount: 0 };
-    const canonical = CYCLE_ORDER[runtime.cycleState?.nextBaseIndex ?? 0] || 'A';
-    let score = CYCLE_META[cycleKey].multiplier * 10;
+  const meta = runtime.cycleState?.memory?.[cycleKey] || { lastScheduledDate: null, skipCount: 0 };
+  const canonical = CYCLE_ORDER[runtime.cycleState?.nextBaseIndex ?? 0] || 'A';
+  let score = CYCLE_META[cycleKey].multiplier * 10;
 
-    if (cycleKey === canonical) score += 2.2;
-    score += Math.min((meta.skipCount || 0) * 0.9, 2.7);
+  if (cycleKey === canonical) score += 2.2;
+  score += Math.min((meta.skipCount || 0) * 0.9, 2.7);
 
-    if (meta.lastScheduledDate) {
-      const gap = daysBetween(meta.lastScheduledDate, dateKey);
-      if (gap >= 10) score += 1.1;
-      else if (gap >= 6) score += 0.6;
-      else if (gap <= 1) score -= 0.8;
-    } else {
-      score += 0.8;
-    }
-
-    if (cycleKey === 'C') {
-      const recentC = (runtime.dayBuilds || []).filter((item) => (
-        item.seedCycle === 'C' && !item.sundayModeActive && daysBetween(item.dateKey, dateKey) <= 4
-      )).length;
-
-      if (recentC >= 2) score -= 2.2;
-      else if (recentC >= 1) score -= 1.0;
-
-      if (!hasRecentCompletion('dp', dateKey, runtime, 8)) score -= 0.8;
-      if (!hasRecentCompletion('dpp', dateKey, runtime, 8)) score -= 0.55;
-    }
-
-    return score;
+  if (meta.lastScheduledDate) {
+    const gap = daysBetween(meta.lastScheduledDate, dateKey);
+    if (gap >= 10) score += 1.1;
+    else if (gap >= 6) score += 0.6;
+    else if (gap <= 1) score -= 0.8;
+  } else {
+    score += 0.8;
   }
+
+  if (cycleKey === 'C') {
+    const lastCDate = cycleLastSeen('C', runtime);
+    const recentC = (runtime.dayBuilds || []).filter((item) => (
+      item.seedCycle === 'C' && !item.sundayModeActive && daysBetween(item.dateKey, dateKey) <= 6
+    )).length;
+
+    const unlockedC = countUnlockedCDisciplines(dateKey, runtime);
+    const dpCount = recentCompletionCount('dp', dateKey, runtime, 12);
+    const dppCount = recentCompletionCount('dpp', dateKey, runtime, 12);
+
+    if (lastCDate && daysBetween(lastCDate, dateKey) < 6) score -= 5.5;
+    if (recentC >= 1) score -= 3.0;
+    if (recentC >= 2) score -= 5.0;
+
+    if (dpCount < 2) score -= 2.2;
+    if (dppCount < 2) score -= 1.8;
+
+    if (unlockedC === 0) score -= 7.0;
+    else if (unlockedC === 1) score -= 3.2;
+  }
+
+  return score;
+}
 
   function chooseSeedCycle(dateKey, runtime, excludedCycles = []) {
     const candidates = CYCLE_ORDER
@@ -898,23 +975,30 @@
   }
 
   function selectDisciplinesForCycle(cycleKey, count, dateKey, runtime, excludeKeys = []) {
-    if (count <= 0) return [];
+  if (count <= 0) return [];
 
-    const excluded = new Set(excludeKeys.filter(Boolean));
-    const previousActiveBuild = getPreviousActiveBuild(dateKey, runtime);
+  const excluded = new Set(excludeKeys.filter(Boolean));
+  const previousActiveBuild = getPreviousActiveBuild(dateKey, runtime);
 
-    return runtime.disciplines
-      .filter((discipline) => discipline.macroCycle === cycleKey)
-      .filter((discipline) => !excluded.has(discipline.key))
-      .filter((discipline) => !previousActiveBuild?.disciplineKeys?.includes(discipline.key))
-      .map((discipline) => ({ discipline, score: calcDisciplinePriority(discipline, dateKey, runtime) }))
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return a.discipline.name.localeCompare(b.discipline.name, 'pt-BR');
-      })
-      .slice(0, count)
-      .map((entry) => entry.discipline);
-  }
+  return runtime.disciplines
+    .filter((discipline) => discipline.macroCycle === cycleKey)
+    .filter((discipline) => !excluded.has(discipline.key))
+    .filter((discipline) => !previousActiveBuild?.disciplineKeys?.includes(discipline.key))
+    .filter((discipline) => {
+      if (cycleKey !== 'C') return true;
+      return canDisciplineEnterFromCycle(discipline, dateKey, runtime);
+    })
+    .map((discipline) => ({
+      discipline,
+      score: calcDisciplinePriority(discipline, dateKey, runtime),
+    }))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.discipline.name.localeCompare(b.discipline.name, 'pt-BR');
+    })
+    .slice(0, count)
+    .map((entry) => entry.discipline);
+}
 
   function registerCycleSelection(runtime, cycleKey, dateKey) {
     const previous = runtime.cycleState.lastBaseCycle;
@@ -1019,39 +1103,65 @@
   }
 
   function buildActiveDay(dateKey, carriedItems, runtime) {
-    const weekdayKey = wkFromDateKey(dateKey);
-    const slots = getDaySlots(runtime.config, weekdayKey);
+  const weekdayKey = wkFromDateKey(dateKey);
+  const slots = getDaySlots(runtime.config, weekdayKey);
 
-    const packageItems = carriedItems.map((item) => ({ ...item }));
-    const freeSlots = Math.max(0, slots - packageItems.length);
+  const packageItems = carriedItems.map((item) => ({ ...item }));
+  const freeSlots = Math.max(0, slots - packageItems.length);
 
-    let seedCycle = runtime.cycleState.lastBaseCycle || (CYCLE_ORDER[runtime.cycleState.nextBaseIndex] || 'A');
+  let seedCycle = runtime.cycleState.lastBaseCycle || (CYCLE_ORDER[runtime.cycleState.nextBaseIndex] || 'A');
+  let selected = [];
 
-    if (freeSlots > 0) {
-      seedCycle = chooseSeedCycle(dateKey, runtime);
-      const existingKeys = packageItems.filter((item) => item.type === 'discipline').map((item) => item.disciplineKey);
-      const selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
+  if (freeSlots > 0) {
+    seedCycle = chooseSeedCycle(dateKey, runtime);
 
-      selected.forEach((discipline) => {
-        packageItems.push(createDiscItem(discipline, dateKey, seedCycle, { buildReason: 'base' }));
-      });
+    const existingKeys = packageItems
+      .filter((item) => item.type === 'discipline')
+      .map((item) => item.disciplineKey);
 
-      registerCycleSelection(runtime, seedCycle, dateKey);
+    selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
+
+    // Se C não destravou nada útil, aborta C e cai para A/B.
+    if (seedCycle === 'C' && selected.length === 0) {
+      seedCycle = chooseSeedCycle(dateKey, runtime, ['C']);
+      selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
     }
 
-    const day = {
-      dateKey,
-      weekdayKey,
-      packageItems,
-      closedVisual: false,
-      sundayModeActive: false,
-      seedCycle,
-      sundaySuggestion: null,
-    };
+    // Se C entrou parcialmente, completa com reforço A/B em vez de forçar RG.
+    if (seedCycle === 'C' && selected.length < freeSlots) {
+      const support = selectSupportDisciplines(
+        freeSlots - selected.length,
+        dateKey,
+        runtime,
+        [
+          ...existingKeys,
+          ...selected.map((discipline) => discipline.key),
+        ]
+      );
 
-    recordDayBuild(runtime, day);
-    return day;
+      selected = [...selected, ...support];
+    }
+
+    selected.forEach((discipline) => {
+      packageItems.push(createDiscItem(discipline, dateKey, seedCycle, { buildReason: 'base' }));
+    });
+
+    registerCycleSelection(runtime, seedCycle, dateKey);
   }
+
+  const day = {
+    dateKey,
+    weekdayKey,
+    packageItems,
+    closedVisual: false,
+    sundayModeActive: false,
+    seedCycle,
+    sundaySuggestion: null,
+  };
+
+  recordDayBuild(runtime, day);
+  return day;
+}
 
   function composeNextDay(dateKey, previousDay, runtime) {
     const weekdayKey = wkFromDateKey(dateKey);
