@@ -888,32 +888,23 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
   }
 
   function calcContextFactor(discipline, dateKey, runtime) {
-    let factor = 1;
+  let factor = 1;
 
-    if (discipline.crossExamRelevance === 'high') factor += 0.08;
-    if (discipline.crossExamRelevance === 'very_low') factor -= 0.08;
+  if (discipline.crossExamRelevance === 'high') factor += 0.08;
+  if (discipline.crossExamRelevance === 'very_low') factor -= 0.08;
 
-    if (discipline.key === 'dpm' && !hasRecentCompletion('dp', dateKey, runtime, 8)) factor -= 0.30;
-    if (discipline.key === 'dppm' && !hasRecentCompletion('dpp', dateKey, runtime, 8)) factor -= 0.28;
-    if (discipline.key === 'lex' && !(hasRecentCompletion('dp', dateKey, runtime, 10) || hasRecentCompletion('dc', dateKey, runtime, 10))) factor -= 0.12;
+  if (discipline.key === 'dpm' && !hasRecentCompletion('dp', dateKey, runtime, 8)) factor -= 0.30;
+  if (discipline.key === 'dppm' && !hasRecentCompletion('dpp', dateKey, runtime, 8)) factor -= 0.28;
+  if (discipline.key === 'lex' && !(hasRecentCompletion('dp', dateKey, runtime, 10) || hasRecentCompletion('dc', dateKey, runtime, 10))) factor -= 0.12;
 
-    const lastActiveBuild = getPreviousActiveBuild(dateKey, runtime);
-    if (lastActiveBuild?.disciplineKeys?.includes(discipline.key)) {
-      factor -= 0.42;
-    }
-
-    const recentSame = (runtime.history || []).filter((item) => (
-      item.type === 'discipline'
-      && !item.skipped
-      && item.discKey === discipline.key
-      && daysBetween(item.dateKey, dateKey) <= 4
-    )).length;
-
-    if (recentSame >= 2) factor -= 0.18;
-    if (recentSame >= 3) factor -= 0.22;
-
-    return Math.max(0.2, factor);
+  // Regra correta: só segura de verdade se apareceu no dia ativo imediatamente anterior.
+  const previousActiveBuild = getPreviousActiveBuild(dateKey, runtime);
+  if (previousActiveBuild?.disciplineKeys?.includes(discipline.key)) {
+    factor -= 0.55;
   }
+
+  return Math.max(0.2, factor);
+}
 
   function calcDisciplinePriority(discipline, dateKey, runtime) {
     const cycleMult = CYCLE_META[discipline.macroCycle]?.multiplier ?? 1;
