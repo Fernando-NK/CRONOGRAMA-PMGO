@@ -1104,21 +1104,21 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
   let selected = [];
 
   if (freeSlots > 0) {
-    seedCycle = chooseSeedCycle(dateKey, runtime);
-
     const existingKeys = packageItems
       .filter((item) => item.type === 'discipline')
       .map((item) => item.disciplineKey);
 
+    // 1ª tentativa: ciclo prioritário normal
+    seedCycle = chooseSeedCycle(dateKey, runtime);
     selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
 
-    // Se C não destravou nada útil, aborta C e cai para A/B.
-    if (seedCycle === 'C' && selected.length === 0) {
+    // 2ª tentativa: se C não entregou nada útil, aborta C e tenta A/B
+    if (selected.length === 0 && seedCycle === 'C') {
       seedCycle = chooseSeedCycle(dateKey, runtime, ['C']);
       selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
     }
 
-    // Se C entrou parcialmente, completa com reforço A/B em vez de forçar RG.
+    // 3ª tentativa: se C entrou parcialmente, completa com apoio de A/B
     if (seedCycle === 'C' && selected.length < freeSlots) {
       const support = selectSupportDisciplines(
         freeSlots - selected.length,
@@ -1133,11 +1133,41 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
       selected = [...selected, ...support];
     }
 
+    // 4ª tentativa: fallback geral — relaxa o bloqueio do build anterior
+    if (selected.length < freeSlots) {
+      const fallbackExcluded = new Set([
+        ...existingKeys,
+        ...selected.map((discipline) => discipline.key),
+      ]);
+
+      const fallbackFill = runtime.disciplines
+        .filter((discipline) => discipline.macroCycle !== 'D')
+        .filter((discipline) => !fallbackExcluded.has(discipline.key))
+        .filter((discipline) => {
+          if (discipline.macroCycle !== 'C') return true;
+          return canDisciplineEnterFromCycle(discipline, dateKey, runtime);
+        })
+        .map((discipline) => ({
+          discipline,
+          score: calcDisciplinePriority(discipline, dateKey, runtime),
+        }))
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return a.discipline.name.localeCompare(b.discipline.name, 'pt-BR');
+        })
+        .slice(0, freeSlots - selected.length)
+        .map((entry) => entry.discipline);
+
+      selected = [...selected, ...fallbackFill];
+    }
+
     selected.forEach((discipline) => {
       packageItems.push(createDiscItem(discipline, dateKey, seedCycle, { buildReason: 'base' }));
     });
 
-    registerCycleSelection(runtime, seedCycle, dateKey);
+    if (selected.length > 0) {
+      registerCycleSelection(runtime, seedCycle, dateKey);
+    }
   }
 
   const day = {
@@ -1146,7 +1176,7 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
     packageItems,
     closedVisual: false,
     sundayModeActive: false,
-    seedCycle,
+    seedCycle: selected.length > 0 ? seedCycle : null,
     sundaySuggestion: null,
   };
 
