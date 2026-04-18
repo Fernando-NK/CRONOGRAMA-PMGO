@@ -1108,17 +1108,17 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
       .filter((item) => item.type === 'discipline')
       .map((item) => item.disciplineKey);
 
-    // 1ª tentativa: ciclo prioritário normal
+    // 1) tentativa normal: ciclo prioritário escolhido pela inteligência
     seedCycle = chooseSeedCycle(dateKey, runtime);
     selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
 
-    // 2ª tentativa: se C não entregou nada útil, aborta C e tenta A/B
+    // 2) se C não entregou nada útil, aborta C e tenta A/B
     if (selected.length === 0 && seedCycle === 'C') {
       seedCycle = chooseSeedCycle(dateKey, runtime, ['C']);
       selected = selectDisciplinesForCycle(seedCycle, freeSlots, dateKey, runtime, existingKeys);
     }
 
-    // 3ª tentativa: se C entrou parcialmente, completa com apoio de A/B
+    // 3) se C entrou parcialmente, completa com apoio A/B
     if (seedCycle === 'C' && selected.length < freeSlots) {
       const support = selectSupportDisciplines(
         freeSlots - selected.length,
@@ -1133,20 +1133,17 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
       selected = [...selected, ...support];
     }
 
-    // 4ª tentativa: fallback geral — relaxa o bloqueio do build anterior
+    // 4) fallback final: não deixa o dia vazio/quebrado.
+    // Aqui NÃO aplicamos canDisciplineEnterFromCycle, porque essa é a camada de emergência.
     if (selected.length < freeSlots) {
       const fallbackExcluded = new Set([
         ...existingKeys,
         ...selected.map((discipline) => discipline.key),
       ]);
 
-      const fallbackFill = runtime.disciplines
+      const fallbackFill = (runtime.disciplines || [])
         .filter((discipline) => discipline.macroCycle !== 'D')
         .filter((discipline) => !fallbackExcluded.has(discipline.key))
-        .filter((discipline) => {
-          if (discipline.macroCycle !== 'C') return true;
-          return canDisciplineEnterFromCycle(discipline, dateKey, runtime);
-        })
         .map((discipline) => ({
           discipline,
           score: calcDisciplinePriority(discipline, dateKey, runtime),
