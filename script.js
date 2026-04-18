@@ -1181,6 +1181,16 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
   return day;
 }
 
+  function buildActiveDayDraft(dateKey, carriedItems, runtime) {
+  const runtimeDraft = deepClone(runtime);
+
+  return buildActiveDay(
+    dateKey,
+    (carriedItems || []).map((item) => deepClone(item)),
+    runtimeDraft
+  );
+}
+  
   function composeNextDay(dateKey, previousDay, runtime) {
     const weekdayKey = wkFromDateKey(dateKey);
 
@@ -1561,49 +1571,60 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   }
 
   function rebuildCurrentDayAfterSettings() {
-    const dateKey = appState.today?.dateKey || isoDate();
-    const weekdayKey = wkFromDateKey(dateKey);
+  const dateKey = appState.today?.dateKey || isoDate();
+  const weekdayKey = wkFromDateKey(dateKey);
 
-    if (isSunday(weekdayKey)) {
-      appState.today = buildSundayDay(dateKey, appState);
-      return;
-    }
-
-    const slots = getDaySlots(appState.config, weekdayKey);
-
-    const preserved = (appState.today.packageItems || [])
-      .map((item) => normPkgItem(item, appState.disciplines))
-      .filter(Boolean)
-      .filter((item) => item.type === 'discipline')
-      .slice(0, slots);
-
-    const seedCycle = ['A', 'B', 'C'].includes(appState.today.seedCycle)
-      ? appState.today.seedCycle
-      : chooseSeedCycle(dateKey, appState);
-
-    const existingKeys = preserved.map((item) => item.disciplineKey);
-    const fillNeeded = Math.max(0, slots - preserved.length);
-
-    if (fillNeeded > 0) {
-      const selected = selectDisciplinesForCycle(seedCycle, fillNeeded, dateKey, appState, existingKeys);
-      selected.forEach((discipline) => {
-        preserved.push(createDiscItem(discipline, dateKey, seedCycle, { buildReason: 'base' }));
-      });
-    }
-
-    appState.today = {
-      dateKey,
-      weekdayKey,
-      packageItems: preserved,
-      closedVisual: dayIsFullyCompleted({ packageItems: preserved }),
-      sundayModeActive: false,
-      seedCycle,
-      sundaySuggestion: null,
-    };
-
-    recordDayBuild(appState, appState.today);
+  if (isSunday(weekdayKey)) {
+    appState.today = buildSundayDay(dateKey, appState);
+    return;
   }
 
+  const slots = getDaySlots(appState.config, weekdayKey);
+
+  const normalizedItems = (appState.today.packageItems || [])
+    .map((item) => {
+      const normalized = normPkgItem(item, appState.disciplines);
+      if (!normalized || normalized.type !== 'discipline') return null;
+
+      return {
+        ...normalized,
+        reservedDate: dateKey,
+      };
+    })
+    .filter(Boolean);
+
+  const preserved = [
+    ...normalizedItems.filter((item) => !item.completed),
+    ...normalizedItems.filter((item) => item.completed),
+  ].slice(0, slots);
+
+  const simulatedDay = buildActiveDayDraft(dateKey, preserved, appState);
+
+  const finalItems = [];
+  const seen = new Set();
+
+  for (const item of simulatedDay.packageItems || []) {
+    if (item.type !== 'discipline') continue;
+    if (seen.has(item.disciplineKey)) continue;
+    if (finalItems.length >= slots) break;
+
+    seen.add(item.disciplineKey);
+    finalItems.push(item);
+  }
+
+  appState.today = {
+    dateKey,
+    weekdayKey,
+    packageItems: finalItems,
+    closedVisual: dayIsFullyCompleted({ packageItems: finalItems }),
+    sundayModeActive: false,
+    seedCycle: simulatedDay.seedCycle || appState.today.seedCycle || appState.cycleState.lastBaseCycle || null,
+    sundaySuggestion: null,
+  };
+
+  recordDayBuild(appState, appState.today);
+}
+  
   function requestReset() {
     if (appState.config.confirmReset) {
       openModal('reset-modal');
