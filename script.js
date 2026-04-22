@@ -770,12 +770,13 @@
     return [fromBuilds, fromToday, fromCarry].filter(Boolean).sort().pop() || null;
   }
 
-  function hasRecentCompletion(discKey, dateKey, runtime = appState, withinDays = 10) {
-    const last = getLastCompletionDate(discKey, runtime);
-    if (!last) return false;
-    return daysBetween(last, dateKey) <= withinDays;
-  }
+ ffunction hasRecentCompletion(discKey, dateKey, runtime = appState, withinDays = 10) {
+  const last = getLastCompletionDate(discKey, runtime);
+  if (!last) return false;
 
+  const gap = daysBetween(last, dateKey);
+  return gap >= 0 && gap <= withinDays;
+}
   function getPreviousActiveBuild(dateKey, runtime = appState) {
     const activeBuilds = (runtime.dayBuilds || [])
       .filter((item) => !item.sundayModeActive && item.dateKey < dateKey)
@@ -785,12 +786,18 @@
   }
   
    function recentCompletionCount(discKey, dateKey, runtime = appState, withinDays = 12) {
-  return (runtime.history || []).filter((item) => (
-    item.type === 'discipline'
-    && !item.skipped
-    && item.discKey === discKey
-    && daysBetween(item.dateKey, dateKey) <= withinDays
-  )).length;
+  return (runtime.history || []).filter((item) => {
+    if (
+      item.type !== 'discipline'
+      || item.skipped
+      || item.discKey !== discKey
+    ) {
+      return false;
+    }
+
+    const gap = daysBetween(item.dateKey, dateKey);
+    return gap >= 0 && gap <= withinDays;
+  }).length;
 }
 
 function cycleLastSeen(cycleKey, runtime = appState) {
@@ -1159,8 +1166,12 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
     }
 
     selected.forEach((discipline) => {
-      packageItems.push(createDiscItem(discipline, dateKey, seedCycle, { buildReason: 'base' }));
-    });
+  const buildReason = discipline.macroCycle === seedCycle ? 'base' : 'support';
+
+  packageItems.push(
+    createDiscItem(discipline, dateKey, discipline.macroCycle, { buildReason })
+  );
+});
 
     if (selected.length > 0) {
       registerCycleSelection(runtime, seedCycle, dateKey);
