@@ -1327,6 +1327,10 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
 
     if (appState.today.dateKey === currentDate) {
       appState.today.closedVisual = dayIsFullyCompleted(appState.today);
+
+if (!wasClosedBefore && appState.today.closedVisual) {
+  triggerCompletionBurst();
+}
       return;
     }
 
@@ -1421,6 +1425,19 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   /* ═══════════════════════════════════════════════════════
      ACTIONS
   ═══════════════════════════════════════════════════════ */
+ function triggerCompletionBurst() {
+  const burst = document.getElementById('completion-burst');
+  if (!burst) return;
+
+  burst.classList.remove('show');
+  void burst.offsetWidth;
+  burst.classList.add('show');
+
+  window.setTimeout(() => {
+    burst.classList.remove('show');
+  }, 2200);
+}
+  
   function handlePkgAction(event) {
     if (isBusy) return;
 
@@ -1436,9 +1453,10 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
 
     try {
       if (action === 'complete' && !item.completed) {
-        item.completed = true;
-        item.completedAt = new Date().toISOString();
+  const wasClosedBefore = dayIsFullyCompleted(appState.today);
 
+  item.completed = true;
+  item.completedAt = new Date().toISOString();
         appState.history.push({
           uid: uid(),
           type: 'discipline',
