@@ -1881,7 +1881,13 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
         : disciplines.length
           ? `
             <div class="calendar-disc-list">
-              ${disciplines.map((discipline) => `<div class="calendar-disc">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`).join('')}
+              ${disciplines.map((discipline) => {
+  const statusClass = day.isToday
+    ? (discipline.completed ? 'is-done-today' : 'is-pending-today')
+    : '';
+
+  return `<div class="calendar-disc ${statusClass}">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`;
+}).join('')}
             </div>
           `
           : `
