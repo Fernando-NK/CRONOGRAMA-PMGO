@@ -758,12 +758,13 @@ button{
 }
 
 .calendar-card.today .calendar-disc.is-done-today::before{
-  background:#4ade80;
+  background:#22c55e;
   box-shadow:
-    0 0 0 3px rgba(74,222,128,.16),
-    0 0 8px rgba(74,222,128,.42),
-    0 0 14px rgba(74,222,128,.22);
-  animation:calendarDoneGlow 2.8s ease-in-out infinite;
+    0 0 0 3px rgba(34,197,94,.22),
+    0 0 9px rgba(34,197,94,.58),
+    0 0 16px rgba(34,197,94,.34);
+  opacity:1;
+  animation:none;
 }
 
 @keyframes calendarPendingPulse{
