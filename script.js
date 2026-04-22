@@ -1292,62 +1292,58 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
   }
 
   function shiftOpenStateToDate(dateKey) {
-    const shiftedDay = {
-      ...appState.today,
-      dateKey,
-      weekdayKey: wkFromDateKey(dateKey),
-      packageItems: (appState.today.packageItems || []).map((item) => ({
-        ...deepClone(item),
-        uid: uid(),
-        reservedDate: dateKey,
-      })),
-    };
+  const shiftedDay = {
+    ...appState.today,
+    dateKey,
+    weekdayKey: wkFromDateKey(dateKey),
+    packageItems: (appState.today.packageItems || []).map((item) => ({
+      ...deepClone(item),
+      uid: uid(),
+      reservedDate: dateKey,
+    })),
+  };
 
-    shiftedDay.closedVisual = dayIsFullyCompleted(shiftedDay);
-    appState.today = shiftedDay;
+  shiftedDay.closedVisual = dayIsFullyCompleted(shiftedDay);
+  appState.today = shiftedDay;
 
-    if (appState.today.sundayModeActive) {
-      appState.carryBuffer = cloneItemsForDate(appState.carryBuffer || [], dateKey, {
-        carryOver: true,
-        keepOriginalDate: true,
-        buildReason: 'carry',
-      });
-    }
-
-    recordDayBuild(appState, appState.today);
+  if (appState.today.sundayModeActive) {
+    appState.carryBuffer = cloneItemsForDate(appState.carryBuffer || [], dateKey, {
+      carryOver: true,
+      keepOriginalDate: true,
+      buildReason: 'carry',
+    });
   }
+
+  recordDayBuild(appState, appState.today);
+}
 
   function reconcileToday() {
-    const currentDate = isoDate();
+  const currentDate = isoDate();
 
-    if (!appState.today || !Array.isArray(appState.today.packageItems) || !appState.today.packageItems.length) {
-      appState.today = buildInitialDay(currentDate, appState);
-      return;
-    }
-
-    if (appState.today.dateKey === currentDate) {
-      appState.today.closedVisual = dayIsFullyCompleted(appState.today);
-
-if (!wasClosedBefore && appState.today.closedVisual) {
-  triggerCompletionBurst();
-}
-      return;
-    }
-
-    if (appState.today.dateKey > currentDate) {
-      appState.today.dateKey = currentDate;
-      appState.today.weekdayKey = wkFromDateKey(currentDate);
-      return;
-    }
-
-    if (appState.today.sundayModeActive || pendingN(appState.today) > 0) {
-      shiftOpenStateToDate(currentDate);
-      return;
-    }
-
-    appState.today = composeNextDay(currentDate, deepClone(appState.today), appState);
+  if (!appState.today || !Array.isArray(appState.today.packageItems) || !appState.today.packageItems.length) {
+    appState.today = buildInitialDay(currentDate, appState);
+    return;
   }
 
+  if (appState.today.dateKey === currentDate) {
+    appState.today.closedVisual = dayIsFullyCompleted(appState.today);
+    return;
+  }
+
+  if (appState.today.dateKey > currentDate) {
+    appState.today.dateKey = currentDate;
+    appState.today.weekdayKey = wkFromDateKey(currentDate);
+    return;
+  }
+
+  if (appState.today.sundayModeActive || pendingN(appState.today) > 0) {
+    shiftOpenStateToDate(currentDate);
+    return;
+  }
+
+  appState.today = composeNextDay(currentDate, deepClone(appState.today), appState);
+}
+  
   function persist() {
     appState.rev += 1;
     appState.updatedAt = new Date().toISOString();
@@ -1439,75 +1435,86 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
 }
   
   function handlePkgAction(event) {
-    if (isBusy) return;
+  if (isBusy) return;
 
-    const button = event.currentTarget;
-    const action = button.dataset.action;
-    const itemId = button.dataset.itemId;
-    if (!action || !itemId) return;
+  const button = event.currentTarget;
+  const action = button.dataset.action;
+  const itemId = button.dataset.itemId;
+  if (!action || !itemId) return;
 
-    const item = (appState.today.packageItems || []).find((entry) => entry.uid === itemId);
-    if (!item || item.type !== 'discipline') return;
+  const item = (appState.today.packageItems || []).find((entry) => entry.uid === itemId);
+  if (!item || item.type !== 'discipline') return;
 
-    isBusy = true;
+  isBusy = true;
 
-    try {
-      if (action === 'complete' && !item.completed) {
-  const wasClosedBefore = dayIsFullyCompleted(appState.today);
+  try {
+    if (action === 'complete' && !item.completed) {
+      const wasClosedBefore = dayIsFullyCompleted(appState.today);
 
-  item.completed = true;
-  item.completedAt = new Date().toISOString();
-        appState.history.push({
-          uid: uid(),
-          type: 'discipline',
-          discKey: item.disciplineKey,
-          name: item.name,
-          macroCycle: item.macroCycle,
-          colorKey: item.colorKey,
-          dateKey: appState.today.dateKey,
-          completedIso: item.completedAt,
-          weekdayKey: appState.today.weekdayKey,
-          carryOver: item.carryOver,
-          skipped: false,
-          dayClose: false,
-          meta: {
-            inheritedFromDate: item.inheritedFromDate || null,
-            sourceCycle: item.sourceCycle || null,
-            occLabel: item.occLabel || null,
-          },
-        });
+      item.completed = true;
+      item.completedAt = new Date().toISOString();
 
-        appState.stats.completedCount = clamp((appState.stats.completedCount || 0) + 1, 0, 1000000000, 0);
-        appState.today.closedVisual = dayIsFullyCompleted(appState.today);
+      appState.history.push({
+        uid: uid(),
+        type: 'discipline',
+        discKey: item.disciplineKey,
+        name: item.name,
+        macroCycle: item.macroCycle,
+        colorKey: item.colorKey,
+        dateKey: appState.today.dateKey,
+        completedIso: item.completedAt,
+        weekdayKey: appState.today.weekdayKey,
+        carryOver: item.carryOver,
+        skipped: false,
+        dayClose: false,
+        meta: {
+          inheritedFromDate: item.inheritedFromDate || null,
+          sourceCycle: item.sourceCycle || null,
+          occLabel: item.occLabel || null,
+        },
+      });
+
+      appState.stats.completedCount = clamp(
+        (appState.stats.completedCount || 0) + 1,
+        0,
+        1000000000,
+        0
+      );
+
+      appState.today.closedVisual = dayIsFullyCompleted(appState.today);
+
+      if (!wasClosedBefore && appState.today.closedVisual) {
+        triggerCompletionBurst();
       }
-
-      if (action === 'undo' && item.completed) {
-        item.completed = false;
-        item.completedAt = null;
-        appState.today.closedVisual = false;
-
-        const reverseIndex = [...appState.history].reverse().findIndex((historyItem) => (
-          historyItem.type === 'discipline'
-          && !historyItem.skipped
-          && historyItem.discKey === item.disciplineKey
-          && historyItem.dateKey === appState.today.dateKey
-        ));
-
-        if (reverseIndex >= 0) {
-          appState.history.splice(appState.history.length - 1 - reverseIndex, 1);
-        }
-
-        appState.stats.completedCount = Math.max(0, (appState.stats.completedCount || 0) - 1);
-      }
-
-      persist();
-      render();
-    } finally {
-      setTimeout(() => {
-        isBusy = false;
-      }, 120);
     }
+
+    if (action === 'undo' && item.completed) {
+      item.completed = false;
+      item.completedAt = null;
+      appState.today.closedVisual = false;
+
+      const reverseIndex = [...appState.history].reverse().findIndex((historyItem) => (
+        historyItem.type === 'discipline'
+        && !historyItem.skipped
+        && historyItem.discKey === item.disciplineKey
+        && historyItem.dateKey === appState.today.dateKey
+      ));
+
+      if (reverseIndex >= 0) {
+        appState.history.splice(appState.history.length - 1 - reverseIndex, 1);
+      }
+
+      appState.stats.completedCount = Math.max(0, (appState.stats.completedCount || 0) - 1);
+    }
+
+    persist();
+    render();
+  } finally {
+    setTimeout(() => {
+      isBusy = false;
+    }, 120);
   }
+}
 
   function addDiscipline() {
     const nameInput = document.getElementById('new-disc-name');
