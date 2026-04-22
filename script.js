@@ -770,7 +770,7 @@
     return [fromBuilds, fromToday, fromCarry].filter(Boolean).sort().pop() || null;
   }
 
- ffunction hasRecentCompletion(discKey, dateKey, runtime = appState, withinDays = 10) {
+ function hasRecentCompletion(discKey, dateKey, runtime = appState, withinDays = 10) {
   const last = getLastCompletionDate(discKey, runtime);
   if (!last) return false;
 
