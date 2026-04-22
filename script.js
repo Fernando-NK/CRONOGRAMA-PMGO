@@ -1431,7 +1431,7 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
 
   window.setTimeout(() => {
     burst.classList.remove('show');
-  }, 2200);
+  }, 3200);
 }
   
   function handlePkgAction(event) {
