@@ -758,9 +758,12 @@ button{
 }
 
 .calendar-card.today .calendar-disc.is-done-today::before{
-  background:var(--success);
-  box-shadow:0 0 0 3px rgba(134,200,146,.10), 0 0 8px rgba(134,200,146,.24);
-  animation:none;
+  background:#4ade80;
+  box-shadow:
+    0 0 0 3px rgba(74,222,128,.16),
+    0 0 8px rgba(74,222,128,.42),
+    0 0 14px rgba(74,222,128,.22);
+  animation:calendarDoneGlow 2.8s ease-in-out infinite;
 }
 
 @keyframes calendarPendingPulse{
@@ -777,6 +780,32 @@ button{
   100%{
     opacity:.75;
     box-shadow:0 0 0 2px rgba(207,77,77,.08), 0 0 5px rgba(207,77,77,.20);
+  }
+}
+
+@keyframes calendarDoneGlow{
+  0%{
+    opacity:.82;
+    box-shadow:
+      0 0 0 2px rgba(74,222,128,.12),
+      0 0 6px rgba(74,222,128,.32),
+      0 0 10px rgba(74,222,128,.16);
+  }
+
+  50%{
+    opacity:1;
+    box-shadow:
+      0 0 0 4px rgba(74,222,128,.20),
+      0 0 11px rgba(74,222,128,.55),
+      0 0 18px rgba(74,222,128,.28);
+  }
+
+  100%{
+    opacity:.82;
+    box-shadow:
+      0 0 0 2px rgba(74,222,128,.12),
+      0 0 6px rgba(74,222,128,.32),
+      0 0 10px rgba(74,222,128,.16);
   }
 }
 
