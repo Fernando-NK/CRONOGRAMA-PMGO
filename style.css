@@ -751,6 +751,35 @@ button{
   flex-shrink:0;
 }
 
+.calendar-card.today .calendar-disc.is-pending-today::before{
+  background:#cf4d4d;
+  box-shadow:0 0 0 3px rgba(207,77,77,.10), 0 0 8px rgba(207,77,77,.28);
+  animation:calendarPendingPulse 2.4s ease-in-out infinite;
+}
+
+.calendar-card.today .calendar-disc.is-done-today::before{
+  background:var(--success);
+  box-shadow:0 0 0 3px rgba(134,200,146,.10), 0 0 8px rgba(134,200,146,.24);
+  animation:none;
+}
+
+@keyframes calendarPendingPulse{
+  0%{
+    opacity:.75;
+    box-shadow:0 0 0 2px rgba(207,77,77,.08), 0 0 5px rgba(207,77,77,.20);
+  }
+
+  50%{
+    opacity:1;
+    box-shadow:0 0 0 4px rgba(207,77,77,.13), 0 0 10px rgba(207,77,77,.34);
+  }
+
+  100%{
+    opacity:.75;
+    box-shadow:0 0 0 2px rgba(207,77,77,.08), 0 0 5px rgba(207,77,77,.20);
+  }
+}
+
 .calendar-card.today .calendar-disc{
   border-color:rgba(143,183,255,.10);
   background:rgba(143,183,255,.04);
