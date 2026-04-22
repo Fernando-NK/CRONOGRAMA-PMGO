@@ -1843,94 +1843,94 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   }
 
   function renderCalendar() {
-    const box = document.getElementById('calendar-grid');
-    if (!box) return;
+  const box = document.getElementById('calendar-grid');
+  if (!box) return;
 
-    const days = buildCalendarPreview(9);
+  const days = buildCalendarPreview(9);
 
-    box.innerHTML = days.map((day, index) => {
-      const disciplines = todayDiscs(day);
-      const pending = pendingN(day);
+  box.innerHTML = days.map((day, index) => {
+    const disciplines = todayDiscs(day);
+    const pending = pendingN(day);
 
-      const kicker = day.isToday
-        ? 'HOJE'
-        : index === 1
-          ? 'AMANHÃ'
-          : day.sundayModeActive
-            ? 'DOM'
-            : 'PROJEÇÃO';
+    const kicker = day.isToday
+      ? 'HOJE'
+      : index === 1
+        ? 'AMANHÃ'
+        : day.sundayModeActive
+          ? 'DOM'
+          : 'PROJEÇÃO';
 
-      const stateClass = [
-        'calendar-card',
-        day.isToday ? 'today' : '',
-        index === 1 && !day.isToday ? 'tomorrow' : '',
-        day.sundayModeActive ? 'sunday' : '',
-        !day.isToday && index !== 1 && !day.sundayModeActive ? 'projected' : '',
-      ].filter(Boolean).join(' ');
+    const stateClass = [
+      'calendar-card',
+      day.isToday ? 'today' : '',
+      index === 1 && !day.isToday ? 'tomorrow' : '',
+      day.sundayModeActive ? 'sunday' : '',
+      !day.isToday && index !== 1 && !day.sundayModeActive ? 'projected' : '',
+    ].filter(Boolean).join(' ');
 
-      const loadLabel = day.sundayModeActive ? 'D' : `${disciplines.length} DISC`;
+    const loadLabel = day.sundayModeActive ? 'D' : `${disciplines.length} DISC`;
 
-      const discList = day.sundayModeActive
+    const discList = day.sundayModeActive
+      ? `
+        <div class="calendar-disc-list">
+          <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
+          <div class="calendar-disc">${esc(day.sundaySuggestion?.label || 'ATIVO')}</div>
+          <div class="calendar-disc">${esc(day.sundaySuggestion?.note || 'Bloco ativo sem teoria nova por padrão')}</div>
+        </div>
+      `
+      : disciplines.length
         ? `
           <div class="calendar-disc-list">
-            <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
-            <div class="calendar-disc">${esc(day.sundaySuggestion?.label || 'ATIVO')}</div>
-            <div class="calendar-disc">${esc(day.sundaySuggestion?.note || 'Bloco ativo sem teoria nova por padrão')}</div>
+            ${disciplines.map((discipline) => {
+              const statusClass = day.isToday
+                ? (discipline.completed ? 'is-done-today' : 'is-pending-today')
+                : '';
+
+              return `<div class="calendar-disc ${statusClass}">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`;
+            }).join('')}
           </div>
         `
-        : disciplines.length
-          ? `
-            <div class="calendar-disc-list">
-              ${disciplines.map((discipline) => {
-  const statusClass = day.isToday
-    ? (discipline.completed ? 'is-done-today' : 'is-pending-today')
-    : '';
-
-  return `<div class="calendar-disc ${statusClass}">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`;
-}).join('')}
-            </div>
-          `
-          : `
-            <div class="calendar-disc-list">
-              <div class="calendar-disc">Sem disciplinas projetadas</div>
-            </div>
-          `;
-
-      const note = day.sundayModeActive
-  ? 'Sugestão de consolidação. Não é imposição automática.'
-  : day.isToday
-    ? (
-        pending > 0
-          ? `${pending} pendência(s) real(is) em aberto hoje.`
-          : 'Sem pendências reais em aberto hoje.'
-      )
-    : (
-        disciplines.length > 0
-          ? `${disciplines.length} disciplina(s) prevista(s) para este dia.`
-          : 'Sem disciplinas previstas para este dia.'
-      );
-
-      return `
-        <article class="${stateClass}">
-          <div class="calendar-card-top">
-            <span class="calendar-kicker">${kicker}</span>
+        : `
+          <div class="calendar-disc-list">
+            <div class="calendar-disc">Sem disciplinas projetadas</div>
           </div>
+        `;
 
-          <div class="calendar-main">
-            <h3 class="calendar-day">${esc(wkLabel(day.dateKey))}</h3>
-            <div class="calendar-date">${esc(fmtDate(day.dateKey))}</div>
-          </div>
+    const note = day.sundayModeActive
+      ? 'Sugestão de consolidação. Não é imposição automática.'
+      : day.isToday
+        ? (
+            pending > 0
+              ? `${pending} pendência(s) real(is) em aberto hoje.`
+              : 'Sem pendências reais em aberto hoje.'
+          )
+        : (
+            disciplines.length > 0
+              ? `${disciplines.length} disciplina(s) prevista(s) para este dia.`
+              : 'Sem disciplinas previstas para este dia.'
+          );
 
-          <div class="calendar-load">${loadLabel}</div>
-          ${discList}
+    return `
+      <article class="${stateClass}">
+        <div class="calendar-card-top">
+          <span class="calendar-kicker">${kicker}</span>
+        </div>
 
-          <div class="calendar-foot">
-            <p class="calendar-note">${esc(note)}</p>
-          </div>
-        </article>
-      `;
-    }).join('');
-  }
+        <div class="calendar-main">
+          <h3 class="calendar-day">${esc(wkLabel(day.dateKey))}</h3>
+          <div class="calendar-date">${esc(fmtDate(day.dateKey))}</div>
+        </div>
+
+        <div class="calendar-load">${loadLabel}</div>
+        ${discList}
+
+        <div class="calendar-foot">
+          <p class="calendar-note">${esc(note)}</p>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
 
   function renderHistory() {
     const box = document.getElementById('history-list');
