@@ -1423,6 +1423,14 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   ═══════════════════════════════════════════════════════ */
  function triggerCompletionBurst() {
   const burst = document.getElementById('completion-burst');
+  const sound = document.getElementById('completion-sound');
+
+  if (sound) {
+    sound.currentTime = 0;
+    sound.volume = 0.28;
+    sound.play().catch(() => {});
+  }
+
   if (!burst) return;
 
   burst.classList.remove('show');
