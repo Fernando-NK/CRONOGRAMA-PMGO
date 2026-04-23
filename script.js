@@ -1426,9 +1426,27 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   const sound = document.getElementById('completion-sound');
 
   if (sound) {
+    sound.pause();
     sound.currentTime = 0;
-    sound.volume = 0.28;
+    sound.volume = 0;
+
     sound.play().catch(() => {});
+
+    const targetVolume = 0.28;
+    const fadeInDuration = 140;
+    const fadeSteps = 7;
+    const stepTime = fadeInDuration / fadeSteps;
+    const volumeStep = targetVolume / fadeSteps;
+
+    let currentStep = 0;
+    const fadeIn = setInterval(() => {
+      currentStep += 1;
+      sound.volume = Math.min(targetVolume, currentStep * volumeStep);
+
+      if (currentStep >= fadeSteps) {
+        clearInterval(fadeIn);
+      }
+    }, stepTime);
   }
 
   if (!burst) return;
