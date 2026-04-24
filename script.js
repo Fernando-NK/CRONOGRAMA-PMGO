@@ -2266,7 +2266,9 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   const days = buildCalendarPreview(9);
 
   box.innerHTML = days.map((day, index) => {
-    const disciplines = todayDiscs(day);
+    const disciplines = day.isToday
+  ? (appState.today.packageItems || []).filter((item) => item.type === 'discipline')
+  : todayDiscs(day);
     const pending = pendingN(day);
 
     const kicker = day.isToday
