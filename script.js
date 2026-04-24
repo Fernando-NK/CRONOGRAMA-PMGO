@@ -2189,12 +2189,13 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
       !day.isToday && index !== 1 && !day.sundayModeActive ? 'projected' : '',
     ].filter(Boolean).join(' ');
 
-    const loadLabel = day.sundayModeActive ? 'D' : `${disciplines.length} DISC`;
+    const loadLabel = day.sundayModeActive
+  ? 'FASE DE CONSOLIDAÇÃO'
+  : `${disciplines.length} DISC`;
 
     const discList = day.sundayModeActive
   ? `
     <div class="calendar-disc-list">
-      <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
       ${(Array.isArray(day.sundaySuggestion?.suggestions) && day.sundaySuggestion.suggestions.length
         ? day.sundaySuggestion.suggestions.slice(0, 3).map((suggestion) => `
             <div class="calendar-disc">${esc(suggestion.title)}</div>
@@ -2215,8 +2216,10 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
       </div>
     `;
 
-    const note = day.sundayModeActive
-  ? `${Math.min((day.sundaySuggestion?.suggestions || []).length || 1, 3)} sugestão(ões) de consolidação para este dia.`
+    const sundaySuggestionCount = Math.min((day.sundaySuggestion?.suggestions || []).length || 1, 3);
+
+const note = day.sundayModeActive
+  ? `${sundaySuggestionCount} ${sundaySuggestionCount === 1 ? 'sugestão' : 'sugestões'} para o domingo.`
   : day.isToday
     ? (
         pending > 0
