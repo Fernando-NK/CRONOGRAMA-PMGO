@@ -2001,27 +2001,52 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   }
 
   function renderStats() {
-    const pctEl = document.getElementById('pkg-pct');
-    const fillEl = document.getElementById('pkg-fill');
-    const stateEl = document.getElementById('fc-state');
+  const pctEl = document.getElementById('pkg-pct');
+  const fillEl = document.getElementById('pkg-fill');
+  const stateEl = document.getElementById('fc-state');
+  const focusTitleEl = document.getElementById('focus-title');
+  const progressTitleEl = document.getElementById('progress-title');
 
-    const total = totalDiscN(appState.today);
-    const done = doneTodayN(appState.today);
-    const pct = total ? Math.round((done / total) * 100) : 0;
+  const total = totalDiscN(appState.today);
+  const done = doneTodayN(appState.today);
+  const pct = total ? Math.round((done / total) * 100) : 0;
 
-    if (pctEl) pctEl.textContent = `${done} / ${total}`;
-    if (fillEl) fillEl.style.width = `${pct}%`;
+  if (focusTitleEl) {
+    focusTitleEl.textContent = appState.today.sundayModeActive
+      ? 'Fase de Consolidação'
+      : 'Rotação Operacional';
+  }
 
-    if (stateEl) {
-      if (appState.today.sundayModeActive) {
-        stateEl.textContent = appState.today.sundaySuggestion?.note || 'Domingo ativo de consolidação.';
-      } else if (appState.today.closedVisual) {
-        stateEl.textContent = 'Dia fechado visualmente';
-      } else {
-        stateEl.textContent = `${pendingN(appState.today)} pendência(s) em aberto`;
-      }
+  if (progressTitleEl) {
+    progressTitleEl.textContent = appState.today.sundayModeActive
+      ? 'Domingo ativo'
+      : 'Progresso da rotação';
+  }
+
+  if (pctEl) {
+    if (appState.today.sundayModeActive) {
+      pctEl.textContent = '';
+      pctEl.style.visibility = 'hidden';
+    } else {
+      pctEl.textContent = `${done} / ${total}`;
+      pctEl.style.visibility = 'visible';
     }
   }
+
+  if (fillEl) {
+    fillEl.style.width = appState.today.sundayModeActive ? '0%' : `${pct}%`;
+  }
+
+  if (stateEl) {
+    if (appState.today.sundayModeActive) {
+      stateEl.textContent = appState.today.sundaySuggestion?.note || 'Domingo ativo de consolidação.';
+    } else if (appState.today.closedVisual) {
+      stateEl.textContent = 'Dia fechado visualmente';
+    } else {
+      stateEl.textContent = `${pendingN(appState.today)} pendência(s) em aberto`;
+    }
+  }
+}
 
   function renderFocus() {
     const grid = document.getElementById('today-pkg');
@@ -2036,20 +2061,6 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
   const sunday = appState.today.sundaySuggestion || {};
   const suggestions = Array.isArray(sunday.suggestions) ? sunday.suggestions : [];
 
-  const summaryCard = `
-    <div class="package-item special current">
-      <div class="package-main">
-        <div class="package-eyebrow">FASE DE CONSOLIDAÇÃO</div>
-        <h3 class="package-title">Domingo ativo</h3>
-        <p class="package-sub">${esc(sunday.note || 'Domingo sem teoria nova por padrão. Consolidar vem antes de expandir.')}</p>
-        <div class="package-tags">
-          <span class="mini-chip">DOMINGO</span>
-          ${sunday.label ? `<span class="mini-chip">${esc(sunday.label)}</span>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
-
   const suggestionCards = suggestions.map((suggestion, index) => `
     <div class="package-item ${index === 0 ? 'current' : ''}">
       <div class="package-main">
@@ -2063,7 +2074,9 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
     </div>
   `).join('');
 
-  grid.innerHTML = summaryCard + suggestionCards;
+  grid.innerHTML = suggestionCards || `
+    <div class="empty-box">Nenhuma sugestão especial para este domingo.</div>
+  `;
 
   if (queueNote) {
     queueNote.classList.remove('is-hidden');
@@ -2072,12 +2085,11 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
 
   if (directive) {
     directive.textContent = sunday.note
-      || 'Domingo sem teoria nova por padrão. Revisão, questões, redação, Anki, organização e combinações podem fazer sentido.';
+      || 'Domingo sem teoria nova por padrão. Revisão, questões, redação, Anki e organização podem fazer sentido.';
   }
 
   return;
 }
-
     if (!items.length) {
       grid.innerHTML = '<div class="empty-box">Nenhuma disciplina projetada para hoje.</div>';
       if (queueNote) {
@@ -2191,26 +2203,20 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
       )}
     </div>
   `
-      : disciplines.length
-        ? `
-          <div class="calendar-disc-list">
-            ${disciplines.map((discipline) => {
-              const statusClass = day.isToday
-                ? (discipline.completed ? 'is-done-today' : 'is-pending-today')
-                : '';
-
-              return `<div class="calendar-disc ${statusClass}">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`;
-            }).join('')}
-          </div>
-        `
-        : `
-          <div class="calendar-disc-list">
-            <div class="calendar-disc">Sem disciplinas projetadas</div>
-          </div>
-        `;
+  : disciplines.length
+    ? `
+      <div class="calendar-disc-list">
+        ${disciplines.map((discipline) => `<div class="calendar-disc">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`).join('')}
+      </div>
+    `
+    : `
+      <div class="calendar-disc-list">
+        <div class="calendar-disc">Sem disciplinas projetadas</div>
+      </div>
+    `;
 
     const note = day.sundayModeActive
-  ? (day.sundaySuggestion?.note || 'Sugestão de consolidação. Não é imposição automática.')
+  ? `${Math.min((day.sundaySuggestion?.suggestions || []).length || 1, 3)} sugestão(ões) de consolidação para este dia.`
   : day.isToday
     ? (
         pending > 0
