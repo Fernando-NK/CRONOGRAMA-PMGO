@@ -1562,6 +1562,102 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
     Store.save(appState);
   }
 
+  function buildBackupPayload() {
+  return {
+    backupVersion: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'pmgo_vh_widget',
+    storageKey: STORAGE_KEY,
+    state: deepClone(appState),
+  };
+}
+
+function exportBackupJson() {
+  try {
+    syncIfNewer();
+
+    const payload = buildBackupPayload();
+    const blob = new Blob(
+      [JSON.stringify(payload, null, 2)],
+      { type: 'application/json;charset=utf-8' }
+    );
+
+    const stamp = isoDate().replace(/-/g, '');
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = `virtus-et-honor-backup-${stamp}.json`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    console.error('Falha ao exportar backup JSON:', error);
+    alert('Falha ao exportar o backup JSON.');
+  }
+}
+
+function parseBackupPayload(raw) {
+  if (!isObject(raw)) {
+    throw new Error('Arquivo JSON inválido.');
+  }
+
+  const candidateState = isObject(raw.state) ? raw.state : raw;
+
+  if (!isObject(candidateState)) {
+    throw new Error('Backup sem estado utilizável.');
+  }
+
+  return normalizeState(candidateState);
+}
+
+function importBackupJsonFromText(text) {
+  let raw;
+
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    throw new Error('O arquivo selecionado não é um JSON válido.');
+  }
+
+  const importedState = parseBackupPayload(raw);
+
+  appState = importedState;
+  reconcileToday();
+  persist();
+  render();
+}
+
+function handleBackupImportFile(event) {
+  const file = event.target?.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      importBackupJsonFromText(String(reader.result || ''));
+      closeModal('settings-modal');
+      alert('Backup importado com sucesso.');
+    } catch (error) {
+      console.error('Falha ao importar backup JSON:', error);
+      alert(error?.message || 'Falha ao importar o backup JSON.');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  reader.onerror = () => {
+    console.error('Falha ao ler arquivo de backup.');
+    alert('Falha ao ler o arquivo de backup.');
+    event.target.value = '';
+  };
+
+  reader.readAsText(file, 'utf-8');
+}
+
   function syncIfNewer() {
     const raw = Store.load();
     if (!raw) return;
@@ -2425,6 +2521,9 @@ const note = day.sundayModeActive
     const btnOpenCalendar = document.getElementById('btn-open-calendar');
     const tabOperational = document.getElementById('tab-operational');
     const tabCalendar = document.getElementById('tab-calendar');
+    const btnExportBackup = document.getElementById('btn-export-backup');
+    const btnImportBackup = document.getElementById('btn-import-backup');
+    const backupFileInput = document.getElementById('backup-file-input');
 
     if (btnRollover) btnRollover.addEventListener('click', forceRollover);
     if (btnHistory) btnHistory.addEventListener('click', () => openModal('history-modal'));
@@ -2436,6 +2535,18 @@ const note = day.sundayModeActive
     if (btnOpenCalendar) btnOpenCalendar.addEventListener('click', () => setTab('calendar'));
     if (tabOperational) tabOperational.addEventListener('click', () => setTab('operational'));
     if (tabCalendar) tabCalendar.addEventListener('click', () => setTab('calendar'));
+
+    if (btnExportBackup) {
+    btnExportBackup.addEventListener('click', exportBackupJson);
+    }
+
+    if (btnImportBackup && backupFileInput) {
+    btnImportBackup.addEventListener('click', () => backupFileInput.click());
+    }
+
+    if (backupFileInput) {
+    backupFileInput.addEventListener('change', handleBackupImportFile);
+    }
 
     document.querySelectorAll('[data-close]').forEach((button) => {
       button.addEventListener('click', () => closeModal(button.dataset.close));
