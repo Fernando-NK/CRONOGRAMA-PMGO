@@ -1022,64 +1022,276 @@ function selectSupportDisciplines(count, dateKey, runtime, excludeKeys = []) {
   /* ═══════════════════════════════════════════════════════
      SUNDAY ENGINE
   ═══════════════════════════════════════════════════════ */
+  function pushSundaySuggestion(list, suggestion) {
+  if (!suggestion || !suggestion.mode) return;
+  if (list.some((item) => item.mode === suggestion.mode)) return;
+  list.push(suggestion);
+ }
+  
   function chooseSundaySuggestion(dateKey, runtime) {
-    const recentCompletions = (runtime.history || []).filter((item) => (
-      item.type === 'discipline' && !item.skipped && daysBetween(item.dateKey, dateKey) <= 7
-    ));
+  const recentItems7 = (runtime.history || []).filter((item) => {
+    if (item.type !== 'discipline' || item.skipped) return false;
+    const gap = daysBetween(item.dateKey, dateKey);
+    return gap >= 0 && gap <= 7;
+  });
 
-    const recentBuilds = (runtime.dayBuilds || []).filter((item) => !item.sundayModeActive && daysBetween(item.dateKey, dateKey) <= 5);
-    const hadStrongAB = recentBuilds.filter((item) => item.seedCycle === 'A' || item.seedCycle === 'B').length >= 2;
-    const hasCarry = (runtime.carryBuffer || []).some((item) => item.type === 'discipline');
+  const recentItems14 = (runtime.history || []).filter((item) => {
+    if (item.type !== 'discipline' || item.skipped) return false;
+    const gap = daysBetween(item.dateKey, dateKey);
+    return gap >= 0 && gap <= 14;
+  });
 
-    const neglected = runtime.disciplines
-      .filter((discipline) => discipline.macroCycle !== 'D')
-      .map((discipline) => {
-        const last = getLastCompletionDate(discipline.key, runtime) || getLastScheduledDate(discipline.key, runtime);
-        return {
-          discipline,
-          gap: last ? daysBetween(last, dateKey) : 9999,
-        };
-      })
-      .sort((a, b) => b.gap - a.gap)[0] || null;
+  const recentCompletions7 = recentItems7.length;
+  const recentCompletions14 = recentItems14.length;
 
-    if (hasCarry) {
+  const recentBuilds = (runtime.dayBuilds || []).filter((item) => {
+    if (item.sundayModeActive) return false;
+    const gap = daysBetween(item.dateKey, dateKey);
+    return gap >= 0 && gap <= 5;
+  });
+
+  const strongABCount = recentBuilds.filter((item) => item.seedCycle === 'A' || item.seedCycle === 'B').length;
+  const hadStrongAB = strongABCount >= 2;
+  const hasCarry = (runtime.carryBuffer || []).some((item) => item.type === 'discipline');
+
+  const neglected = runtime.disciplines
+    .filter((discipline) => discipline.macroCycle !== 'D')
+    .map((discipline) => {
+      const last = getLastCompletionDate(discipline.key, runtime) || getLastScheduledDate(discipline.key, runtime);
       return {
-        mode: 'revisao_seletiva',
-        label: 'REVISÃO',
-        note: 'Domingo útil para revisão seletiva, questões e limpeza estratégica de pendências herdadas.',
+        discipline,
+        gap: last ? daysBetween(last, dateKey) : 9999,
       };
+    })
+    .sort((a, b) => b.gap - a.gap)[0] || null;
+
+  const suggestions = [];
+
+  const shouldSuggestQuestions = hadStrongAB || recentCompletions7 >= 5;
+  const shouldSuggestBattery = hadStrongAB && recentCompletions7 >= 6;
+  const shouldSuggestAnki = recentCompletions7 >= 3 || hadStrongAB || Boolean(neglected && neglected.gap >= 10);
+  const shouldSuggestWriting = !hasCarry && hadStrongAB && recentCompletions7 >= 4 && recentCompletions7 <= 10;
+  const shouldSuggestOrganization = hasCarry || recentCompletions7 <= 3 || recentBuilds.length <= 1;
+  const shouldSuggestSimReminder = !hasCarry && recentCompletions14 >= 12 && recentBuilds.length >= 3;
+
+  let profile = 'consolidacao_equilibrada';
+  let summary = 'Domingo ativo de consolidação. A prioridade é revisar antes de aumentar a prática.';
+
+  if (hasCarry) {
+    profile = 'limpeza_estrategica';
+    summary = 'Há pendência herdada. O domingo favorece limpeza estratégica, revisão seletiva e consolidação leve antes de qualquer treino mais pesado.';
+
+    pushSundaySuggestion(suggestions, {
+      mode: 'revisao_seletiva',
+      label: 'REVISÃO',
+      title: 'Revisão seletiva',
+      note: 'Use o domingo para revisar pontos abertos, consolidar pendências e reduzir atrito para a próxima rotação.',
+      priority: 100,
+    });
+
+    if (shouldSuggestAnki) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'anki_flashcards',
+        label: 'ANKI',
+        title: 'Flashcards / Anki',
+        note: 'Boa combinação com revisão seletiva. Ajuda a consolidar sem abrir teoria nova.',
+        priority: 74,
+      });
     }
 
-    if (recentCompletions.length >= 12) {
-      return {
-        mode: 'simulado',
-        label: 'SIMULADO',
-        note: 'Houve teoria suficiente na janela recente. Simulado ou prova parcial faz sentido neste domingo.',
-      };
-    }
-
-    if (hadStrongAB) {
-      return {
-        mode: 'questoes_mistas',
+    if (shouldSuggestQuestions) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'questoes_por_disciplina',
         label: 'QUESTÕES',
-        note: 'A semana teve carga forte em A/B. Questões mistas e revisão ativa tendem a render melhor.',
-      };
+        title: 'Questões por disciplina',
+        note: 'Se houver energia, complemente a revisão com questões focadas nas matérias mais sensíveis.',
+        priority: 68,
+      });
     }
 
-    if (neglected && neglected.gap >= 10) {
-      return {
-        mode: 'revisao_ponto_fraco',
-        label: 'REVISÃO',
-        note: `Há negligência acumulada em ${neglected.discipline.name}. Revisão seletiva é uma boa resposta para o domingo.`,
-      };
+    if (shouldSuggestOrganization) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'organizacao_planejamento',
+        label: 'ORGANIZAÇÃO',
+        title: 'Organização leve',
+        note: 'Também é um bom domingo para reorganizar materiais, revisar cronograma e ajustar a semana seguinte.',
+        priority: 42,
+      });
+    }
+  } else if (neglected && neglected.gap >= 12) {
+    profile = 'reforco_ponto_fraco';
+    summary = `Há negligência relevante em ${neglected.discipline.name}. O domingo favorece revisão focada e consolidação inteligente antes de ampliar a prática.`;
+
+    pushSundaySuggestion(suggestions, {
+      mode: 'revisao_ponto_fraco',
+      label: 'REVISÃO',
+      title: 'Revisão de ponto fraco',
+      note: `Direcione a revisão para ${neglected.discipline.name} e conteúdos que ficaram mais distantes na sua janela recente.`,
+      priority: 100,
+    });
+
+    if (shouldSuggestQuestions) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'questoes_por_disciplina',
+        label: 'QUESTÕES',
+        title: 'Questões por disciplina',
+        note: 'Depois da revisão, questões focadas ajudam a validar retenção sem transformar o domingo em pura carga bruta.',
+        priority: 72,
+      });
     }
 
-    return {
+    if (shouldSuggestAnki) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'anki_flashcards',
+        label: 'ANKI',
+        title: 'Flashcards / Anki',
+        note: 'Bom complemento para reforçar retenção dos tópicos mais negligenciados.',
+        priority: 64,
+      });
+    }
+
+    if (shouldSuggestWriting) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'redacao_leve',
+        label: 'REDAÇÃO',
+        title: 'Redação leve',
+        note: 'Se o domingo não estiver pesado demais, cabe um bloco curto de redação como reforço complementar.',
+        priority: 48,
+      });
+    }
+  } else if (hadStrongAB) {
+    profile = 'consolidacao_equilibrada';
+    summary = 'A semana teve carga forte em A/B. O domingo tende a render mais com revisão primeiro, prática depois e consolidação leve complementar.';
+
+    pushSundaySuggestion(suggestions, {
+      mode: 'revisao_semana',
+      label: 'REVISÃO',
+      title: 'Revisão da semana',
+      note: 'Faça uma revisão geral dos pontos principais da semana antes de elevar o volume de prática.',
+      priority: 100,
+    });
+
+    pushSundaySuggestion(suggestions, {
+      mode: shouldSuggestBattery ? 'bateria_questoes' : 'questoes_mistas',
+      label: 'QUESTÕES',
+      title: shouldSuggestBattery ? 'Bateria de questões' : 'Questões mistas',
+      note: shouldSuggestBattery
+        ? 'A semana sustentou bem a teoria. Cabe bateria de questões como validação prática, sem virar obrigação rígida.'
+        : 'Questões mistas entram bem como segunda camada de consolidação após a revisão.',
+      priority: shouldSuggestBattery ? 84 : 78,
+    });
+
+    if (shouldSuggestAnki) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'anki_flashcards',
+        label: 'ANKI',
+        title: 'Flashcards / Anki',
+        note: 'Ótimo apoio para retenção leve e revisão ativa sem abrir teoria nova.',
+        priority: 70,
+      });
+    }
+
+    if (shouldSuggestWriting) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'redacao_leve',
+        label: 'REDAÇÃO',
+        title: 'Redação leve',
+        note: 'Domingo estratégico para incluir um bloco curto de redação sem dominar a consolidação do dia.',
+        priority: 58,
+      });
+    }
+
+    if (shouldSuggestSimReminder) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'simulado_alerta',
+        label: 'SIMULADO',
+        title: 'Planejar simulado',
+        note: 'A janela recente sustenta a ideia de programar simulado em breve. Aqui a sugestão é lembrar, não impor.',
+        priority: 44,
+      });
+    }
+
+    if (shouldSuggestOrganization) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'organizacao_planejamento',
+        label: 'ORGANIZAÇÃO',
+        title: 'Organização leve',
+        note: 'Também pode valer um ajuste rápido de planejamento e materiais para limpar a próxima semana.',
+        priority: 34,
+      });
+    }
+  } else {
+    profile = 'manutencao_leve';
+    summary = 'Domingo sem pressão crítica. O melhor uso tende a ser consolidação leve, revisão geral e manutenção inteligente da retenção.';
+
+    pushSundaySuggestion(suggestions, {
       mode: 'revisao_geral',
-      label: 'CONSOLIDAÇÃO',
-      note: 'Domingo sem teoria nova por padrão. Revisão, questões, flashcards, redação ou organização.',
-    };
+      label: 'REVISÃO',
+      title: 'Revisão geral',
+      note: 'Revisão ampla e leve para consolidar sem transformar o domingo em nova frente pesada de teoria.',
+      priority: 100,
+    });
+
+    if (shouldSuggestAnki) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'anki_flashcards',
+        label: 'ANKI',
+        title: 'Flashcards / Anki',
+        note: 'Boa opção de manutenção e repetição espaçada para um domingo mais solto.',
+        priority: 76,
+      });
+    }
+
+    if (shouldSuggestWriting) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'redacao_leve',
+        label: 'REDAÇÃO',
+        title: 'Redação leve',
+        note: 'Cabe um bloco curto de redação como reforço complementar, sem dominar o domingo.',
+        priority: 56,
+      });
+    }
+
+    if (shouldSuggestOrganization) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'organizacao_planejamento',
+        label: 'ORGANIZAÇÃO',
+        title: 'Organização e planejamento',
+        note: 'Também é um bom momento para revisar cronograma, organizar materiais e preparar a semana seguinte.',
+        priority: 46,
+      });
+    }
+
+    if (shouldSuggestSimReminder) {
+      pushSundaySuggestion(suggestions, {
+        mode: 'simulado_alerta',
+        label: 'SIMULADO',
+        title: 'Lembrete de simulado',
+        note: 'Vale manter no radar a realização de simulado em breve, sem transformar isso em imposição automática.',
+        priority: 30,
+      });
+    }
   }
+
+  suggestions.sort((a, b) => b.priority - a.priority);
+  const finalSuggestions = suggestions.slice(0, 3);
+
+  const primary = finalSuggestions[0] || {
+    mode: 'revisao_geral',
+    label: 'REVISÃO',
+    title: 'Revisão geral',
+    note: 'Domingo sem teoria nova por padrão.',
+    priority: 100,
+  };
+
+  return {
+    profile,
+    mode: primary.mode,
+    label: primary.label,
+    note: summary,
+    suggestions: finalSuggestions,
+  };
+}
 
   /* ═══════════════════════════════════════════════════════
      COMPOSITION ENGINE
@@ -1820,6 +2032,52 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
     const items = appState.today.packageItems || [];
     const isSun = appState.today.sundayModeActive;
 
+    if (isSun) {
+  const sunday = appState.today.sundaySuggestion || {};
+  const suggestions = Array.isArray(sunday.suggestions) ? sunday.suggestions : [];
+
+  const summaryCard = `
+    <div class="package-item special current">
+      <div class="package-main">
+        <div class="package-eyebrow">FASE DE CONSOLIDAÇÃO</div>
+        <h3 class="package-title">Domingo ativo</h3>
+        <p class="package-sub">${esc(sunday.note || 'Domingo sem teoria nova por padrão. Consolidar vem antes de expandir.')}</p>
+        <div class="package-tags">
+          <span class="mini-chip">DOMINGO</span>
+          ${sunday.label ? `<span class="mini-chip">${esc(sunday.label)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const suggestionCards = suggestions.map((suggestion, index) => `
+    <div class="package-item ${index === 0 ? 'current' : ''}">
+      <div class="package-main">
+        <div class="package-eyebrow">SUGESTÃO</div>
+        <h3 class="package-title">${esc(suggestion.title)}</h3>
+        <p class="package-sub">${esc(suggestion.note)}</p>
+        <div class="package-tags">
+          <span class="mini-chip">${esc(suggestion.label)}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  grid.innerHTML = summaryCard + suggestionCards;
+
+  if (queueNote) {
+    queueNote.classList.remove('is-hidden');
+    queueNote.textContent = 'Domingo é fase ativa de consolidação. O sistema apenas sugere; não impõe uma rotina rígida.';
+  }
+
+  if (directive) {
+    directive.textContent = sunday.note
+      || 'Domingo sem teoria nova por padrão. Revisão, questões, redação, Anki, organização e combinações podem fazer sentido.';
+  }
+
+  return;
+}
+
     if (!items.length) {
       grid.innerHTML = '<div class="empty-box">Nenhuma disciplina projetada para hoje.</div>';
       if (queueNote) {
@@ -1922,13 +2180,17 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
     const loadLabel = day.sundayModeActive ? 'D' : `${disciplines.length} DISC`;
 
     const discList = day.sundayModeActive
-      ? `
-        <div class="calendar-disc-list">
-          <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
-          <div class="calendar-disc">${esc(day.sundaySuggestion?.label || 'ATIVO')}</div>
-          <div class="calendar-disc">${esc(day.sundaySuggestion?.note || 'Bloco ativo sem teoria nova por padrão')}</div>
-        </div>
-      `
+  ? `
+    <div class="calendar-disc-list">
+      <div class="calendar-disc">FASE DE CONSOLIDAÇÃO</div>
+      ${(Array.isArray(day.sundaySuggestion?.suggestions) && day.sundaySuggestion.suggestions.length
+        ? day.sundaySuggestion.suggestions.slice(0, 3).map((suggestion) => `
+            <div class="calendar-disc">${esc(suggestion.title)}</div>
+          `).join('')
+        : `<div class="calendar-disc">${esc(day.sundaySuggestion?.label || 'ATIVO')}</div>`
+      )}
+    </div>
+  `
       : disciplines.length
         ? `
           <div class="calendar-disc-list">
@@ -1948,18 +2210,18 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
         `;
 
     const note = day.sundayModeActive
-      ? 'Sugestão de consolidação. Não é imposição automática.'
-      : day.isToday
-        ? (
-            pending > 0
-              ? `${pending} pendência(s) real(is) em aberto hoje.`
-              : 'Sem pendências reais em aberto hoje.'
-          )
-        : (
-            disciplines.length > 0
-              ? `${disciplines.length} disciplina(s) prevista(s) para este dia.`
-              : 'Sem disciplinas previstas para este dia.'
-          );
+  ? (day.sundaySuggestion?.note || 'Sugestão de consolidação. Não é imposição automática.')
+  : day.isToday
+    ? (
+        pending > 0
+          ? `${pending} pendência(s) real(is) em aberto hoje.`
+          : 'Sem pendências reais em aberto hoje.'
+      )
+    : (
+        disciplines.length > 0
+          ? `${disciplines.length} disciplina(s) prevista(s) para este dia.`
+          : 'Sem disciplinas previstas para este dia.'
+      );
 
     return `
       <article class="${stateClass}">
