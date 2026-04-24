@@ -288,14 +288,30 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-ghost" type="button" data-close="settings-modal">
-          Cancelar
-        </button>
-        <button class="btn-primary" type="button" id="btn-save-settings">
-          Salvar
-        </button>
-      </div>
+      <<div class="modal-footer">
+  <button class="btn-ghost" type="button" id="btn-export-backup">
+    Exportar JSON
+  </button>
+
+  <button class="btn-ghost" type="button" id="btn-import-backup">
+    Importar JSON
+  </button>
+
+  <input
+    id="backup-file-input"
+    type="file"
+    accept="application/json,.json"
+    hidden
+  />
+
+  <button class="btn-ghost" type="button" data-close="settings-modal">
+    Cancelar
+  </button>
+
+  <button class="btn-primary" type="button" id="btn-save-settings">
+    Salvar
+  </button>
+</div>
     </div>
   </div>
 
