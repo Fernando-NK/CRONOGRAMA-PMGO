@@ -2303,11 +2303,21 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
     </div>
   `
   : disciplines.length
-    ? `
-      <div class="calendar-disc-list">
-        ${disciplines.map((discipline) => `<div class="calendar-disc">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`).join('')}
-      </div>
-    `
+  ? `
+    <div class="calendar-disc-list">
+      ${disciplines.map((discipline) => {
+        const realItem = day.isToday
+          ? (appState.today.packageItems || []).find((i) => i.uid === discipline.uid || i.disciplineKey === discipline.disciplineKey)
+          : null;
+
+        const statusClass = day.isToday
+          ? (realItem?.completed ? 'is-done-today' : 'is-pending-today')
+          : '';
+
+        return `<div class="calendar-disc ${statusClass}">${esc(discipline.name)}${discipline.carryOver ? ' • herdada' : ''}</div>`;
+      }).join('')}
+    </div>
+  `
     : `
       <div class="calendar-disc-list">
         <div class="calendar-disc">Sem disciplinas projetadas</div>
