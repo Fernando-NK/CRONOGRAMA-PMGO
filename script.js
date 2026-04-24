@@ -1740,7 +1740,7 @@ function composePreviewDay(dateKey, previousDay, runtime, carryItems = []) {
 
     sound.play().catch(() => {});
 
-    const targetVolume = 0.28;
+    const targetVolume = 0.25;
     const fadeInDuration = 140;
     const fadeSteps = 7;
     const stepTime = fadeInDuration / fadeSteps;
